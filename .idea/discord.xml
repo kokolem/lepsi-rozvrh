@@ -4,7 +4,4 @@
     <option name="show" value="true" />
     <option name="description" value="Rychlejší a přehlednější klient pro rozvrh systému Bakláři. Aplikaci jsem vytvořil, protože mi docházela trpělivost s nepřehledností a hlavně pomalostí oficiální aplikace." />
   </component>
-  <component name="ProjectNotificationSettings">
-    <option name="askShowProject" value="false" />
-  </component>
 </project>

@@ -12,14 +12,15 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 
 import cz.vitskalicky.lepsirozvrh.AppSingleton;
 import cz.vitskalicky.lepsirozvrh.R;
 import cz.vitskalicky.lepsirozvrh.Utils;
 import cz.vitskalicky.lepsirozvrh.activity.MainActivity;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
+import cz.vitskalicky.lepsirozvrh.items.BreakOrLesson;
 import cz.vitskalicky.lepsirozvrh.items.Rozvrh;
-import cz.vitskalicky.lepsirozvrh.items.RozvrhHodina;
 
 import static cz.vitskalicky.lepsirozvrh.bakaAPI.ResponseCode.SUCCESS;
 
@@ -76,30 +77,80 @@ public class PermanentNotificationService extends Service {
     }
 
     public void rerenderNotification(Rozvrh rozvrh) {
-        Log.d("PERMANOT", "rerenderNotification: my rozvrh: " + rozvrh.toString());
-        Log.d("PERMANOT", "rerenderNotification: next lesson: " + rozvrh.getRelevantLesson());
+        Rozvrh.GetAnyLessonReturnValues nextLesson = rozvrh.getNextLesson();
+        String nextLessonText;
 
-        if (rozvrh.getRelevantLesson() != null && rozvrh.getRelevantLesson().rozvrhHodina != null) {
-            RozvrhHodina rozvrhHodina = rozvrh.getRelevantLesson().rozvrhHodina;
-
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("Právě probíhá: " + rozvrhHodina.getZkrpr() + " v " + rozvrhHodina.getZkrmist())
-                    .setContentText("Končí v: " + rozvrhHodina.getEndtime())
-                    // .setWhen(System.currentTimeMillis() + rozvrh.getRelevantLesson().rozvrhHodina.)
-                    // .setUsesChronometer(true)
-                    // .setChronometerCountDown(true) missing from the API for unknown reason, see hack below
-                    // .setProgress(45, 45 - 34, false)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setContentIntent(pendingIntent)
-                    .build();
-
-            // a hack to enable ChronometerCountDown (the thing itself is implemented, the setter method is missing)
-            // notification.extras.putBoolean("android.chronometerCountDown", true);
-
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-            notificationManager.notify(NOTIFICATION_ID, notification);
+        if (nextLesson != null) {
+            if (nextLesson.rozvrhHodina != null) {
+                if (nextLesson.rozvrhHodina.getTyp().equals("X")) {
+                    nextLessonText = "volná hodina";
+                } else {
+                    nextLessonText = nextLesson.rozvrhHodina.getZkrpr() + " v " + nextLesson.rozvrhHodina.getZkrmist();
+                }
+            } else {
+                nextLessonText = "volná hodina";
+            }
+        } else {
+            nextLessonText = "volná hodina";
         }
+
+        Log.d("PERMANOT", "další hodina: " + nextLessonText);
+
+        BreakOrLesson currentBreakOrLesson = rozvrh.getCurrentBreakOrLesson();
+        String currentLessonText;
+        LocalTime progressStart = LocalTime.now();
+        LocalTime progressNow = LocalTime.now();
+        LocalTime progressEnd = LocalTime.now();
+        boolean progressIndeterminable = false;
+
+        if (currentBreakOrLesson != null) {
+            if (currentBreakOrLesson.getCurrentBreak() == null) {
+                if (currentBreakOrLesson.getCurrentLesson().getTyp().equals("X")) {
+                    currentLessonText = "volná hodina";
+                } else {
+                    currentLessonText = currentBreakOrLesson.getCurrentLesson().getZkrpr() + " v " + currentBreakOrLesson.getCurrentLesson().getZkrmist();
+                }
+                progressStart = currentBreakOrLesson.getCurrentLesson().getParsedBegintime();
+                progressEnd = currentBreakOrLesson.getCurrentLesson().getParsedEndtime();
+            } else {
+                currentLessonText = "přestávka";
+                progressStart = currentBreakOrLesson.getCurrentBreak().getBeginTime();
+                progressEnd = currentBreakOrLesson.getCurrentBreak().getEndTime();
+            }
+        } else {
+            progressIndeterminable = true;
+            currentLessonText = "volná hodina";
+        }
+
+        Log.d("PERMANOT", "tato hodina: " + currentLessonText);
+        Log.d("PERMANOT", "progress start: " + progressStart);
+        Log.d("PERMANOT", "progress now: " + progressNow);
+        Log.d("PERMANOT", "progress end: " + progressEnd);
+        Log.d("PERMANOT", "nov: " + (progressNow.getMillisOfDay() - progressStart.getMillisOfDay()));
+        Log.d("PERMANOT", "van: " + (progressEnd.getMillisOfDay() - progressStart.getMillisOfDay()));
+        Log.d("PERMANOT", "progress indeterminable: " + progressIndeterminable);
+        Log.d("PERMANOT", "-----------------------------------");
+
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("Právě probíhá: " + currentLessonText)
+                .setContentText("Následuje: " + nextLessonText)
+                .setWhen(LocalDate.now().toDateTime(progressEnd).getMillis())
+                .setUsesChronometer(!progressIndeterminable)
+                .setShowWhen(!progressIndeterminable)
+                // .setChronometerCountDown(true) missing from the API for unknown reason, see hack below
+                .setProgress(progressEnd.getMillisOfDay() - progressStart.getMillisOfDay(), progressNow.getMillisOfDay() - progressStart.getMillisOfDay(), progressIndeterminable)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .build();
+
+        // a hack to enable ChronometerCountDown (the thing itself is implemented, the setter method is missing)
+        notification.extras.putBoolean("android.chronometerCountDown", true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(NOTIFICATION_ID, notification);
     }
 
     @Override
