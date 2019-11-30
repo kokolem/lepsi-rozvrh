@@ -85,8 +85,9 @@ public class Rozvrh {
      * returns the lesson, which should be highlighted to the user as next or current lesson or null
      * if the school is over or this is not the current week.
      */
-    public GetNLreturnValues getNextLesson() {
-        LocalDate nowDate = LocalDate.now();
+    public GetAnyLessonReturnValues getRelevantLesson() {
+        //LocalDate nowDate = LocalDate.now()
+        LocalDate nowDate = LocalDate.parse("2019-12-02");
         LocalTime nowTime = LocalTime.now();
 
         RozvrhDen dneska = null;
@@ -120,7 +121,7 @@ public class Rozvrh {
             hodinaIndex = -1;
         }
 
-        GetNLreturnValues ret = new GetNLreturnValues();
+        GetAnyLessonReturnValues ret = new GetAnyLessonReturnValues();
         ret.rozvrhHodina = dalsi;
         ret.dayIndex = denIndex;
         ret.lessonIndex = hodinaIndex;
@@ -129,7 +130,114 @@ public class Rozvrh {
         return ret;
     }
 
-    public static class GetNLreturnValues {
+    /**
+     * returns the lesson that is currently running
+     * or the one that just ended if it's a break between lessons right now
+     * or null if the school is over
+     * or null if this is not the current week
+     */
+    public GetAnyLessonReturnValues getCurrentLesson() {
+        //LocalDate nowDate = LocalDate.now()
+        LocalDate nowDate = LocalDate.parse("2019-12-02");
+        LocalTime nowTime = LocalTime.now();
+
+
+        RozvrhDen dneska = null;
+        int denIndex = 0;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+            denIndex++;
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        RozvrhHodina dalsi = null;
+        int hodinaIndex = 0;
+        for (int i = 0; i < dneska.getHodiny().size(); i++) {
+            RozvrhHodina item = dneska.getHodiny().get(i);
+            RozvrhHodina nextItem = dneska.getHodiny().get(i+1);
+            if (nowTime.isAfter(item.getParsedBegintime()) && nowTime.isBefore(nextItem.getParsedBegintime())) {
+                dalsi = item;
+                break;
+            }
+            hodinaIndex++;
+        }
+
+        if (dalsi == null) {
+            denIndex = -1;
+            hodinaIndex = -1;
+        }
+
+        GetAnyLessonReturnValues ret = new GetAnyLessonReturnValues();
+        ret.rozvrhHodina = dalsi;
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = hodinaIndex;
+
+
+        return ret;
+    }
+
+    /**
+     * returns the next lesson
+     * or null if the school is over
+     * or null if current lesson is the last one
+     * or null if this is not the current week
+     */
+    public GetAnyLessonReturnValues getNextLesson() {
+        GetAnyLessonReturnValues currentLesson = getCurrentLesson();
+        RozvrhHodina nextLesson;
+
+        if (currentLesson != null) {
+            if (currentLesson.rozvrhHodina == null) nextLesson = null;
+        } else {
+            nextLesson = null;
+        }
+
+        int denIndex = currentLesson.dayIndex;
+        int currentLessonIndex = currentLesson.lessonIndex;
+        RozvrhDen dneska = dny.get(denIndex);
+
+        try {
+            nextLesson = dneska.getHodiny().get(currentLessonIndex+1);
+        } catch(IndexOutOfBoundsException e) {
+            nextLesson = null;
+        }
+
+        int nextLessonIndex;
+        if (nextLesson == null) {
+            denIndex = -1;
+            nextLessonIndex = -1;
+        } else {
+            nextLessonIndex = currentLessonIndex + 1;
+        }
+
+        GetAnyLessonReturnValues ret = new GetAnyLessonReturnValues();
+        ret.rozvrhHodina = nextLesson;
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = nextLessonIndex;
+
+        return ret;
+    }
+
+
+    /**
+     * returns the current break or lesson
+     * or null
+     */
+    public BreakOrLesson getCurrentBreakOrLesson() {
+        return null;
+    }
+
+    /**
+     * return values for any get*Lesson() method
+     */
+    public static class GetAnyLessonReturnValues {
         public RozvrhHodina rozvrhHodina;
         public int dayIndex;
         public int lessonIndex;
@@ -185,5 +293,16 @@ public class Rozvrh {
             Log.e(TAG, "Creating rozvrh structure failed", e);
         }
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return "Rozvrh{" +
+                "typ='" + typ + '\'' +
+                ", hodiny=" + hodiny +
+                ", dny=" + dny +
+                ", nazevcyklu='" + nazevcyklu + '\'' +
+                ", zkratkacyklu='" + zkratkacyklu + '\'' +
+                '}';
     }
 }

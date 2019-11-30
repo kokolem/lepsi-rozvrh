@@ -96,4 +96,6 @@
         <item quantity="few">%d týdny vpřed</item>
         <item quantity="other">%d týdnů vpřed</item>
     </plurals>
+    <string name="permanent_notification_channel_description">Kanál pro trvalé upozornění s právě probíhající a následující hodinou.</string>
+    <string name="permanent_notification_channel_name">Trvalé upozornění</string>
 </resources>

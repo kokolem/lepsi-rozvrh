@@ -36,4 +36,13 @@ public class RozvrhHodinaCaption {
     public String getTimeString(){
         return getBegintime() + " - " + getEndtime();
     }
+
+    @Override
+    public String toString() {
+        return "RozvrhHodinaCaption{" +
+                "caption='" + caption + '\'' +
+                ", begintime='" + begintime + '\'' +
+                ", endtime='" + endtime + '\'' +
+                '}';
+    }
 }

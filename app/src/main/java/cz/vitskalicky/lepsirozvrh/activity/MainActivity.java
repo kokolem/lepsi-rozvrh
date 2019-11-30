@@ -1,5 +1,7 @@
 package cz.vitskalicky.lepsirozvrh.activity;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 
@@ -8,6 +10,8 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.os.Bundle;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
@@ -21,6 +25,7 @@ import cz.vitskalicky.lepsirozvrh.R;
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
+import cz.vitskalicky.lepsirozvrh.service.PermanentNotificationService;
 import cz.vitskalicky.lepsirozvrh.settings.SettingsActivity;
 import cz.vitskalicky.lepsirozvrh.view.RozvrhTableFragment;
 
@@ -54,6 +59,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        createNotificationChannelForPermanentNotification();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(new Intent(this, PermanentNotificationService.class));
+        } else {
+            startService(new Intent(this, PermanentNotificationService.class));
+        }
 
         checkLogin();
 
@@ -200,6 +213,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static final String STATE_WEEK = "week";
+
+    private void createNotificationChannelForPermanentNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.permanent_notification_channel_name);
+            String description = getString(R.string.permanent_notification_channel_description);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(PermanentNotificationService.CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {

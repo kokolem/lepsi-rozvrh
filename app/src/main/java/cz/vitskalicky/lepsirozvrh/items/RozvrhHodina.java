@@ -281,4 +281,31 @@ public class RozvrhHodina {
     public int getHighlight() {
         return highlight;
     }
+
+    @Override
+    public String toString() {
+        return "RozvrhHodina{" +
+                "begintime='" + begintime + '\'' +
+                ", endtime='" + endtime + '\'' +
+                ", typ='" + typ + '\'' +
+                ", zkrpr='" + zkrpr + '\'' +
+                ", pr='" + pr + '\'' +
+                ", zkruc='" + zkruc + '\'' +
+                ", uc='" + uc + '\'' +
+                ", zkrmist='" + zkrmist + '\'' +
+                ", tema='" + tema + '\'' +
+                ", caption='" + caption + '\'' +
+                ", zkratka='" + zkratka + '\'' +
+                ", nazev='" + nazev + '\'' +
+                ", zkrskup='" + zkrskup + '\'' +
+                ", chng='" + chng + '\'' +
+                ", cycle='" + cycle + '\'' +
+                ", mist='" + mist + '\'' +
+                ", abs='" + abs + '\'' +
+                ", skup='" + skup + '\'' +
+                ", notice='" + notice + '\'' +
+                ", highlight=" + highlight +
+                ", expanded=" + expanded +
+                '}';
+    }
 }

@@ -26,6 +26,8 @@
     <string name="search">Search…</string>
     <string name="connection_failed">Could not connect to server</string>
     <string name="intensive_operation_in_process">Intensive operation in process…</string>
+    <string name="permanent_notification_channel_name">Permanent Notification</string>
+    <string name="permanent_notification_channel_description">The channel for permanent notification with the current and the next lesson.</string>
 
     <!-- Info messages -->
     <string name="info_last_week">Last week</string>

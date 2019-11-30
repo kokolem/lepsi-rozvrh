@@ -336,7 +336,7 @@ public class RozvrhLayout extends ViewGroup {
             nextHodinaViewCorner = null;
             return;
         }
-        Rozvrh.GetNLreturnValues values = rozvrh.getNextLesson();
+        Rozvrh.GetAnyLessonReturnValues values = rozvrh.getRelevantLesson();
 
 
         //unhighlight

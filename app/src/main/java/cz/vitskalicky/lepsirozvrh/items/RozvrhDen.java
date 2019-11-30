@@ -82,4 +82,13 @@ public class RozvrhDen {
         }
         return i.nextIndex();
     }
+
+    @Override
+    public String toString() {
+        return "RozvrhDen{" +
+                "zkratka='" + zkratka + '\'' +
+                ", datum='" + datum + '\'' +
+                ", hodiny=" + hodiny +
+                '}';
+    }
 }
