@@ -50,7 +50,7 @@ In the application settings, there is a new option to enable a permanent notific
 - Beta - a future complete rewrite that should't contain many bugs
 - Release - a future version, improved Beta (hopefully) without any bugs, when I get here, I will offer a merge with the original repository
 
-## Licence
+## License
 
 Like Better schedule, this fork is also is a *[free software][3]* (not just a freeware) licensed under [GPLv3][2].
 
