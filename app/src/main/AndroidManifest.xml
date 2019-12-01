@@ -33,7 +33,7 @@
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-        <service android:name=".service.PermanentNotificationService" />
+        <service android:name=".permanentNotification.PermanentNotificationService" />
     </application>
 
 </manifest>

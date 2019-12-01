@@ -6,6 +6,7 @@ package cz.vitskalicky.lepsirozvrh.items;
 
 import android.util.Log;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.simpleframework.xml.Element;
@@ -13,8 +14,10 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 @Root(name = "rozvrh", strict = false)
 public class Rozvrh {
@@ -82,10 +85,114 @@ public class Rozvrh {
     }
 
     /**
+     * returns a list of start and end DateTime objects of today's lessons
+     * or null if there are no lessons today
+     * or null if this is not the current week
+     */
+    public List<DateTime> getLessonDateTimesToday() {
+        LocalDate nowDate = LocalDate.now();
+
+        RozvrhDen dneska = null;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        List<RozvrhHodina> lessonsToday = dneska.getHodiny();
+
+        if (lessonsToday.isEmpty())
+            return null;
+
+        List<DateTime> lessonTimes = new ArrayList<>();
+
+        for (RozvrhHodina lesson : lessonsToday) {
+            lessonTimes.add(lesson.getParsedBegintime().toDateTimeToday());
+            lessonTimes.add(lesson.getParsedEndtime().toDateTimeToday());
+        }
+
+        return lessonTimes;
+    }
+
+    /**
+     * returns today's first lesson
+     * or null if there are no lessons today
+     * or null if this is not the current week
+     */
+    public Lesson getFirstLessonToday() {
+        LocalDate nowDate = LocalDate.now();
+
+        RozvrhDen dneska = null;
+        int denIndex = 0;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+            denIndex++;
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        if (dneska.getHodiny().isEmpty())
+            return null;
+
+        Lesson ret = new Lesson();
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = 0;
+        ret.rozvrhHodina = dneska.getHodiny().get(0);
+
+        return ret;
+    }
+
+    /**
+     * returns today's last lesson
+     * or null if there are no lessons today
+     * or null if this is not the current week
+     */
+    public Lesson getLastLessonToday() {
+        LocalDate nowDate = LocalDate.now();
+
+        RozvrhDen dneska = null;
+        int denIndex = 0;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+            denIndex++;
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        if (dneska.getHodiny().isEmpty())
+            return null;
+
+        Lesson ret = new Lesson();
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = dneska.getHodiny().size();
+        ret.rozvrhHodina = dneska.getHodiny().get(dneska.getHodiny().size() - 1);
+
+        return ret;
+    }
+
+    /**
      * returns the lesson, which should be highlighted to the user as next or current lesson or null
      * if the school is over or this is not the current week.
      */
-    public GetAnyLessonReturnValues getRelevantLesson() {
+    public Lesson getRelevantLesson() {
         LocalDate nowDate = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
 
@@ -120,7 +227,7 @@ public class Rozvrh {
             hodinaIndex = -1;
         }
 
-        GetAnyLessonReturnValues ret = new GetAnyLessonReturnValues();
+        Lesson ret = new Lesson();
         ret.rozvrhHodina = dalsi;
         ret.dayIndex = denIndex;
         ret.lessonIndex = hodinaIndex;
@@ -135,7 +242,7 @@ public class Rozvrh {
      * or null if the school is over
      * or null if this is not the current week
      */
-    public GetAnyLessonReturnValues getCurrentLesson() {
+    public Lesson getCurrentLesson() {
         LocalDate nowDate = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
 
@@ -159,7 +266,7 @@ public class Rozvrh {
         for (int i = 0; i < dneska.getHodiny().size(); i++) {
             RozvrhHodina item = dneska.getHodiny().get(i);
             try {
-                RozvrhHodina nextItem = dneska.getHodiny().get(i+1);
+                RozvrhHodina nextItem = dneska.getHodiny().get(i + 1);
                 if ((nowTime.isAfter(item.getParsedBegintime()) || nowTime.isEqual(item.getParsedBegintime())) && nowTime.isBefore(nextItem.getParsedBegintime())) {
                     dalsi = item;
                     break;
@@ -178,7 +285,7 @@ public class Rozvrh {
             hodinaIndex = -1;
         }
 
-        GetAnyLessonReturnValues ret = new GetAnyLessonReturnValues();
+        Lesson ret = new Lesson();
         ret.rozvrhHodina = dalsi;
         ret.dayIndex = denIndex;
         ret.lessonIndex = hodinaIndex;
@@ -193,8 +300,8 @@ public class Rozvrh {
      * or null if current lesson is the last one
      * or null if this is not the current week
      */
-    public GetAnyLessonReturnValues getNextLesson() {
-        GetAnyLessonReturnValues currentLesson = getCurrentLesson();
+    public Lesson getNextLesson() {
+        Lesson currentLesson = getCurrentLesson();
         RozvrhHodina nextLesson;
 
         if (currentLesson != null) {
@@ -208,8 +315,8 @@ public class Rozvrh {
         RozvrhDen dneska = dny.get(denIndex);
 
         try {
-            nextLesson = dneska.getHodiny().get(currentLessonIndex+1);
-        } catch(IndexOutOfBoundsException e) {
+            nextLesson = dneska.getHodiny().get(currentLessonIndex + 1);
+        } catch (IndexOutOfBoundsException e) {
             nextLesson = null;
         }
 
@@ -221,7 +328,7 @@ public class Rozvrh {
             nextLessonIndex = currentLessonIndex + 1;
         }
 
-        GetAnyLessonReturnValues ret = new GetAnyLessonReturnValues();
+        Lesson ret = new Lesson();
         ret.rozvrhHodina = nextLesson;
         ret.dayIndex = denIndex;
         ret.lessonIndex = nextLessonIndex;
@@ -236,8 +343,8 @@ public class Rozvrh {
      * or null if this is not the current week
      */
     public BreakOrLesson getCurrentBreakOrLesson() {
-        GetAnyLessonReturnValues currentLesson = getCurrentLesson();
-        GetAnyLessonReturnValues nextLesson = getNextLesson();
+        Lesson currentLesson = getCurrentLesson();
+        Lesson nextLesson = getNextLesson();
 
         if (currentLesson != null) {
             if (currentLesson.rozvrhHodina == null) return null;
@@ -255,7 +362,7 @@ public class Rozvrh {
     /**
      * return values for any get*Lesson() method
      */
-    public static class GetAnyLessonReturnValues {
+    public static class Lesson {
         public RozvrhHodina rozvrhHodina;
         public int dayIndex;
         public int lessonIndex;

@@ -87,6 +87,9 @@
     <string name="copied">Copied</string>
     <string name="include_schedule">Include schedule?</string>
     <string name="include_schedule_desc">Include your schedule in the message?\n\nDefinitely choose \'yes\' if reporting a visual bug.</string>
+    <string name="notification_lesson_in_class">%1$s in %2$s</string>
+    <string name="notification_lesson_or_break_now_happening">Right now: %1$s</string>
+    <string name="notification_next_lesson">Next: %1$s</string>
 
     <plurals name="info_weeks_back">
         <item quantity="one">%d week back</item>
@@ -96,6 +99,10 @@
         <item quantity="one">%d week forward</item>
         <item quantity="other">%d weeks forward</item>
     </plurals>
+    <string name="notificatio_loading_schedule">Right now: loading schedule</string>
+    <string name="notification_break">break</string>
+    <string name="notification_loading_schedule_secondary">It may take a while...</string>
+    <string name="notification_no_lesson">no lesson</string>
 
 
 </resources>
