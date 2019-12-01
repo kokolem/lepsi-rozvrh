@@ -26,8 +26,16 @@
     <string name="search">Search…</string>
     <string name="connection_failed">Could not connect to server</string>
     <string name="intensive_operation_in_process">Intensive operation in process…</string>
+    <string name="functionality">Functionality</string>
+
+    <string name="permanent_notification">Permanent notification</string>
     <string name="permanent_notification_channel_name">Permanent Notification</string>
     <string name="permanent_notification_channel_description">The channel for permanent notification with the current and the next lesson.</string>
+    <string name="permanent_notification_loading_schedule">Right now: loading schedule</string>
+    <string name="permanent_notification_break">break</string>
+    <string name="permanent_notification_loading_schedule_secondary">It may take a while…</string>
+    <string name="notification_no_lesson">no lesson</string>
+    <string name="permanent_notification_desc">Notification showing current and the next lesson</string>
 
     <!-- Info messages -->
     <string name="info_last_week">Last week</string>
@@ -99,10 +107,5 @@
         <item quantity="one">%d week forward</item>
         <item quantity="other">%d weeks forward</item>
     </plurals>
-    <string name="notificatio_loading_schedule">Right now: loading schedule</string>
-    <string name="notification_break">break</string>
-    <string name="notification_loading_schedule_secondary">It may take a while...</string>
-    <string name="notification_no_lesson">no lesson</string>
-
 
 </resources>

@@ -35,7 +35,7 @@ public class PermanentNotificationService extends IntentService {
     private static final int SCHEDULE_TASKS = 665;
     private static final int UPDATE_NOTIFICATION = 748;
     private static final int REMOVE_NOTIFICATION = 540;
-    private static final int DISABLE_NOTIFICATION = 797;
+    private static final int DISABLE_NOTIFICATION = 497;
 
     private int netCode;
 
@@ -73,10 +73,12 @@ public class PermanentNotificationService extends IntentService {
 
         switch (requestedAction) {
 
+            // called every day to schedule tasks for that day
             case SCHEDULE_TASKS:
                 Log.d(TAG, "onHandleIntent: Schedule tasks");
+
                 netCode = -1;
-                Rozvrh scheduleRozvrh = rozvrhAPI.get(week, (code, rozvrh) -> {
+                Rozvrh scheduleTasksRozvrh = rozvrhAPI.get(week, (code, rozvrh) -> {
                     //onCacheLoaded
                     // if data wasn't already successfully downloaded from the internet, use cached data
                     if (netCode != SUCCESS && code == SUCCESS) {
@@ -89,13 +91,15 @@ public class PermanentNotificationService extends IntentService {
                         scheduleTasks(rozvrh);
                     }
                 });
-                if (scheduleRozvrh != null) scheduleTasks(scheduleRozvrh);
+                if (scheduleTasksRozvrh != null) scheduleTasks(scheduleTasksRozvrh);
                 break;
 
+            // called when the notification should be updated
             case UPDATE_NOTIFICATION:
                 Log.d(TAG, "onHandleIntent: Update notification");
+
                 netCode = -1;
-                Rozvrh updateRozvrh = rozvrhAPI.get(week, (code, rozvrh) -> {
+                Rozvrh updateNotificationRozvrh = rozvrhAPI.get(week, (code, rozvrh) -> {
                     //onCacheLoaded
                     // if data wasn't already successfully downloaded from the internet, use cached data
                     if (netCode != SUCCESS && code == SUCCESS) {
@@ -108,20 +112,60 @@ public class PermanentNotificationService extends IntentService {
                         updateNotification(rozvrh);
                     }
                 });
-                if (updateRozvrh != null) updateNotification(updateRozvrh);
+                if (updateNotificationRozvrh != null) updateNotification(updateNotificationRozvrh);
                 break;
 
+            // called after the last lesson to remove the notification
             case REMOVE_NOTIFICATION:
                 Log.d(TAG, "onHandleIntent: Remove notification");
+
                 // stop updating the notification
-                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent updateNotificationIntent = new Intent(this, PermanentNotificationService.class);
-                PendingIntent updateNotificationPendingIntent = PendingIntent.getService(this, UPDATE_NOTIFICATION, updateNotificationIntent, 0);
-                alarmManager.cancel(updateNotificationPendingIntent);
+                AlarmManager removeNotificationAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                Intent updateNotificationIntentForRemoveNotification = new Intent(this, PermanentNotificationService.class);
+                PendingIntent updateNotificationPendingIntentForRemoveNotification = PendingIntent.getService(this, UPDATE_NOTIFICATION, updateNotificationIntentForRemoveNotification, 0);
+                removeNotificationAlarmManager.cancel(updateNotificationPendingIntentForRemoveNotification);
 
                 // remove the notification
                 NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
                 break;
+
+            // called when the user disables permanent notification in settings  - cancels all scheduled alarms
+            // and removes the notification
+            case DISABLE_NOTIFICATION:
+                Log.d(TAG, "onHandleIntent: Disable notification");
+
+                AlarmManager disableNotificationAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+                // the following code basically reverses what was done in scheduleTasks
+
+                // cancel alarms set for when a lesson begins or ends
+                for (int i = 0; i < 24; i++) { // no one has more than 24 lessons a day
+                    Intent updateNotificationIntentForDisableNotification = new Intent(this, PermanentNotificationService.class);
+                    PendingIntent updateNotificationPendingIntentForDisableNotification = PendingIntent.getService(this, UPDATE_NOTIFICATION + i + 1, updateNotificationIntentForDisableNotification, 0);
+                    disableNotificationAlarmManager.cancel(updateNotificationPendingIntentForDisableNotification);
+                }
+
+                // stop updating the notification
+                Intent updateNotificationIntentForDisableNotification = new Intent(this, PermanentNotificationService.class);
+                PendingIntent updateNotificationPendingIntentForDisableNotification = PendingIntent.getService(this, UPDATE_NOTIFICATION, updateNotificationIntentForDisableNotification, 0);
+                disableNotificationAlarmManager.cancel(updateNotificationPendingIntentForDisableNotification);
+
+                // cancel alarm for scheduling tasks tomorrow
+                Intent scheduleTasksIntentForDisableNotification = new Intent(this, PermanentNotificationService.class);
+                PendingIntent scheduleTasksPendingIntentForDisableNotification = PendingIntent.getService(this, SCHEDULE_TASKS, scheduleTasksIntentForDisableNotification, 0);
+                disableNotificationAlarmManager.cancel(scheduleTasksPendingIntentForDisableNotification);
+
+                // finally, remove the notification
+                NotificationManagerCompat.from(this).cancel(NOTIFICATION_ID);
+
+                // theoretically, one of the alarms might go off while this will be running
+                // and the intent would be in queue of this service
+                // so let's call stopSelf() just to be sure that the notification won't be
+                // updated (and thus reappear) after it was disabled in the settings
+                stopSelf();
+
+                break;
+
         }
     }
 
@@ -143,20 +187,14 @@ public class PermanentNotificationService extends IntentService {
                 Intent updateNotificationIntent = new Intent(this, PermanentNotificationService.class);
                 updateNotificationIntent.putExtra("ACTION", UPDATE_NOTIFICATION);
                 PendingIntent updateNotificationPendingIntent = PendingIntent.getService(this, UPDATE_NOTIFICATION + i + 1, updateNotificationIntent, 0);
-                alarmManager.setExact(AlarmManager.RTC, lessonTimesToday.get(i).getMillis(), updateNotificationPendingIntent);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, lessonTimesToday.get(i).getMillis(), updateNotificationPendingIntent);
             }
 
             // update the notification every two minutes after the first lesson starts to update progress
             Intent updateNotificationIntent = new Intent(this, PermanentNotificationService.class);
             updateNotificationIntent.putExtra("ACTION", UPDATE_NOTIFICATION);
             PendingIntent updateNotificationPendingIntent = PendingIntent.getService(this, UPDATE_NOTIFICATION, updateNotificationIntent, 0);
-            alarmManager.setRepeating(AlarmManager.RTC, firstLessonStart, 1000 * 60 * 2, updateNotificationPendingIntent);
-
-            // remove the notification and stop updating it after the last lesson ends
-            Intent removeNotificationIntent = new Intent(this, PermanentNotificationService.class);
-            removeNotificationIntent.putExtra("ACTION", REMOVE_NOTIFICATION);
-            PendingIntent removeNotificationPendingIntent = PendingIntent.getService(this, REMOVE_NOTIFICATION, removeNotificationIntent, 0);
-            alarmManager.setExact(AlarmManager.RTC, lastLessonEnd, removeNotificationPendingIntent);
+            alarmManager.setRepeating(AlarmManager.RTC, firstLessonStart, 1000 * 60, updateNotificationPendingIntent);
         }
 
         // tomorrow, schedule tasks before 6AM (hopefully, no ones school starts before that)
@@ -170,6 +208,20 @@ public class PermanentNotificationService extends IntentService {
     }
 
     private void updateNotification(Rozvrh rozvrh) {
+
+        // if the first lesson didn't start yet, do nothing
+        DateTime firstLessonStart = rozvrh.getFirstLessonToday().rozvrhHodina.getParsedBegintime().toDateTimeToday();
+        if (firstLessonStart.isAfterNow()) return;
+
+        // if the last lesson ended, remove and stop updating the notification
+        DateTime lastLessonEnd = rozvrh.getLastLessonToday().rozvrhHodina.getParsedEndtime().toDateTimeToday();
+        if (lastLessonEnd.isBeforeNow()) {
+            Intent removeNotificationIntent = new Intent(this, PermanentNotificationService.class);
+            removeNotificationIntent.putExtra("ACTION", REMOVE_NOTIFICATION);
+            startService(removeNotificationIntent);
+            return;
+        }
+
         Rozvrh.Lesson nextLesson = rozvrh.getNextLesson();
         String nextLessonText;
 
@@ -204,7 +256,7 @@ public class PermanentNotificationService extends IntentService {
                 progressStart = currentBreakOrLesson.getCurrentLesson().getParsedBegintime();
                 progressEnd = currentBreakOrLesson.getCurrentLesson().getParsedEndtime();
             } else {
-                currentLessonText = getString(R.string.notification_break);
+                currentLessonText = getString(R.string.permanent_notification_break);
                 progressStart = currentBreakOrLesson.getCurrentBreak().getBeginTime();
                 progressEnd = currentBreakOrLesson.getCurrentBreak().getEndTime();
             }

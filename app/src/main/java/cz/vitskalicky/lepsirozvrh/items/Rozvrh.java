@@ -15,9 +15,9 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.core.Commit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.stream.Collectors;
 
 @Root(name = "rozvrh", strict = false)
 public class Rozvrh {
@@ -143,13 +143,26 @@ public class Rozvrh {
         if (dneska == null) //current timetable check
             return null;
 
-        if (dneska.getHodiny().isEmpty())
-            return null;
+        RozvrhHodina firstLesson = null;
+        int hodinaIndex = 0;
+        for (int i = 0; i < dneska.getHodiny().size(); i++) {
+            RozvrhHodina item = dneska.getHodiny().get(i);
+            if (!item.getTyp().equals("X")) {
+                firstLesson = item;
+                break;
+            }
+            hodinaIndex++;
+        }
+
+        if (firstLesson == null) {
+            denIndex = -1;
+            hodinaIndex = -1;
+        }
 
         Lesson ret = new Lesson();
         ret.dayIndex = denIndex;
-        ret.lessonIndex = 0;
-        ret.rozvrhHodina = dneska.getHodiny().get(0);
+        ret.lessonIndex = hodinaIndex;
+        ret.rozvrhHodina = firstLesson;
 
         return ret;
     }
@@ -177,13 +190,28 @@ public class Rozvrh {
         if (dneska == null) //current timetable check
             return null;
 
-        if (dneska.getHodiny().isEmpty())
-            return null;
+        RozvrhHodina firstLesson = null;
+        int hodinaIndex = 0;
+        for (int i = dneska.getHodiny().size(); --i >= 0;) {
+            RozvrhHodina item = dneska.getHodiny().get(i);
+            if (!item.getTyp().equals("X")) {
+                firstLesson = item;
+                break;
+            }
+            hodinaIndex++;
+        }
+
+        hodinaIndex = dneska.getHodiny().size() - hodinaIndex -1;
+
+        if (firstLesson == null) {
+            denIndex = -1;
+            hodinaIndex = -1;
+        }
 
         Lesson ret = new Lesson();
         ret.dayIndex = denIndex;
-        ret.lessonIndex = dneska.getHodiny().size();
-        ret.rozvrhHodina = dneska.getHodiny().get(dneska.getHodiny().size() - 1);
+        ret.lessonIndex = hodinaIndex;
+        ret.rozvrhHodina = firstLesson;
 
         return ret;
     }
