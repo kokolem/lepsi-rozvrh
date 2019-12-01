@@ -55,3 +55,7 @@ In the application settings, there is a new option to enable a permanent notific
 ## Licence
 
 Like Better Schedule, this fork is also is a *[free software][3]* (not just a freeware) licensed under [GPLv3][2].
+
+[1]: https://www.gnu.org/philosophy/free-sw.cs.html
+[2]: https://www.gnu.org/licenses/gpl-3.0.en.html
+[3]: https://www.gnu.org/philosophy/free-sw.en.html
