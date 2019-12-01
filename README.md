@@ -13,7 +13,7 @@ V nastavení je možnost zapnout trvalé upozornění, které ukazuje současnou
 #### Verze
 
 - Proof of concept - ukázka využívající stejnou hodinu, jako oranžově ohraničená hodina v samotném rozvrhu
-- Proof of concept 2 - vylepčení ukázky
+- Proof of concept 2 - vylepšení ukázky
 - Alpha - kompletní přepis, první "použitelná" verze, ukazuje současnou a následující hodinu (a je plná chyb)
 - Alpha 2 - částečný přepis, "použitelnější" verze, ukazuje současnou a následující hodinu (a stále je v ní mnoho chyb)
 - Beta - budoucí kompletně přepsaná verze, neměla by obsahovat moc chyb
