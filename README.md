@@ -47,9 +47,7 @@ In the application settings, there is a new option to enable a permanent notific
 - Proof of concept 2 - stability improvements and bug fixes
 - Alpha - complete rewrite, the first "usable" version, shows current and the next lesson (and is riddled with bugs)
 - Alpha 2 - partial rewrite, a "more usable" version, shows current and the next lesson (and still contains many bugs)
-- Beta - budoucí kompletně přepsaná verze, další přepisy už nebudou
 - Beta - a future complete rewrite that should't contain many bugs
-- Release - budoucí verze, Beta bez bugů, až se dostanu sem, navrhnu merge do původního repositáře
 - Release - a future version, improved Beta (hopefully) without any bugs, when I get here, I will offer a merge with the original repository
 
 ## Licence
