@@ -16,7 +16,7 @@ V nastavení je možnost zapnout trvalé upozornění, které ukazuje současnou
 - Proof of concept 2 - vylepšení ukázky
 - Alpha - kompletní přepis, první "použitelná" verze, ukazuje současnou a následující hodinu (a je plná chyb)
 - Alpha 2 - částečný přepis, "použitelnější" verze, ukazuje současnou a následující hodinu (a stále je v ní mnoho chyb)
-- Beta - budoucí kompletně přepsaná verze, neměla by obsahovat moc chyb
+- Beta - částečný přepis, první verze myšlená k používání, obsahuje pár chyb
 - Release - budoucí verze, vylepšená Beta (snad) bez chyb, až se dostanu sem, navrhnu merge do původního repositáře
 
 ## Licence
@@ -47,7 +47,7 @@ In the application settings, there is a new option to enable a permanent notific
 - Proof of concept 2 - stability improvements and bug fixes
 - Alpha - complete rewrite, the first "usable" version, shows current and the next lesson (and is riddled with bugs)
 - Alpha 2 - partial rewrite, a "more usable" version, shows current and the next lesson (and still contains many bugs)
-- Beta - a future complete rewrite that should't contain many bugs
+- Beta - partial rewrite, the first version that's actually meant to be used, contains few bugs
 - Release - a future version, improved Beta (hopefully) without any bugs, when I get here, I will offer a merge with the original repository
 
 ## License
