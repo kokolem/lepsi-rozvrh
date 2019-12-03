@@ -32,7 +32,7 @@ public class PermanentNotificationReceiver extends BroadcastReceiver {
     public static final String CHANNEL_ID = "PermanentNotificationChannel";
     public static final int NOTIFICATION_ID = 968;
     
-    private static final int PERMANENT_NOTIFICATION_SERVICE_REQUEST_CODE = 468;
+    private static final int PERMANENT_NOTIFICATION_REQUEST_CODE = 468;
 
     private int netCode;
 
@@ -105,7 +105,7 @@ public class PermanentNotificationReceiver extends BroadcastReceiver {
 
         Intent permanentNotificationIntent = new Intent(context, PermanentNotificationReceiver.class);
         PendingIntent permanentNotificationPendingIntent = PendingIntent.getBroadcast(context,
-                PERMANENT_NOTIFICATION_SERVICE_REQUEST_CODE, permanentNotificationIntent, 0);
+                PERMANENT_NOTIFICATION_REQUEST_CODE, permanentNotificationIntent, 0);
 
         if (!firstLessonStarted) {
             // first lesson didn't start yet - schedule an alarm to go off when it starts
