@@ -24,7 +24,7 @@ import cz.vitskalicky.lepsirozvrh.R;
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
-import cz.vitskalicky.lepsirozvrh.permanentNotification.PermanentNotificationService;
+import cz.vitskalicky.lepsirozvrh.permanentNotification.PermanentNotificationReceiver;
 import cz.vitskalicky.lepsirozvrh.settings.SettingsActivity;
 import cz.vitskalicky.lepsirozvrh.view.RozvrhTableFragment;
 
@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         createNotificationChannelForPermanentNotification();
-
-        startService(new Intent(this, PermanentNotificationService.class));
 
         checkLogin();
 
@@ -214,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             CharSequence name = getString(R.string.permanent_notification_channel_name);
             String description = getString(R.string.permanent_notification_channel_description);
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(PermanentNotificationService.CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(PermanentNotificationReceiver.CHANNEL_ID, name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);

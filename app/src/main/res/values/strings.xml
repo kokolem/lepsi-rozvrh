@@ -98,6 +98,7 @@
     <string name="notification_lesson_in_class">%1$s in %2$s</string>
     <string name="notification_lesson_or_break_now_happening">Right now: %1$s</string>
     <string name="notification_next_lesson">Next: %1$s</string>
+    <string name="unknown_lesson">unknown lesson</string>
 
     <plurals name="info_weeks_back">
         <item quantity="one">%d week back</item>

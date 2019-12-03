@@ -155,8 +155,7 @@ public class Rozvrh {
         }
 
         if (firstLesson == null) {
-            denIndex = -1;
-            hodinaIndex = -1;
+            return null;
         }
 
         Lesson ret = new Lesson();
@@ -190,12 +189,12 @@ public class Rozvrh {
         if (dneska == null) //current timetable check
             return null;
 
-        RozvrhHodina firstLesson = null;
+        RozvrhHodina lastLesson = null;
         int hodinaIndex = 0;
         for (int i = dneska.getHodiny().size(); --i >= 0;) {
             RozvrhHodina item = dneska.getHodiny().get(i);
             if (!item.getTyp().equals("X")) {
-                firstLesson = item;
+                lastLesson = item;
                 break;
             }
             hodinaIndex++;
@@ -203,15 +202,14 @@ public class Rozvrh {
 
         hodinaIndex = dneska.getHodiny().size() - hodinaIndex -1;
 
-        if (firstLesson == null) {
-            denIndex = -1;
-            hodinaIndex = -1;
+        if (lastLesson == null) {
+            return null;
         }
 
         Lesson ret = new Lesson();
         ret.dayIndex = denIndex;
         ret.lessonIndex = hodinaIndex;
-        ret.rozvrhHodina = firstLesson;
+        ret.rozvrhHodina = lastLesson;
 
         return ret;
     }

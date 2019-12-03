@@ -3,6 +3,7 @@ package cz.vitskalicky.lepsirozvrh.settings;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -29,7 +31,7 @@ import cz.vitskalicky.lepsirozvrh.MainApplication;
 import cz.vitskalicky.lepsirozvrh.R;
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.Utils;
-import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
+import cz.vitskalicky.lepsirozvrh.permanentNotification.PermanentNotificationReceiver;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,6 +66,30 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
             return true;
         });
+
+        findPreference(getString(R.string.PREFS_PERMANENT_NOTIFICATION)).setOnPreferenceChangeListener(((preference, newValue) -> {
+            if (newValue instanceof Boolean && getContext() != null) {
+                ComponentName receiver = new ComponentName(getContext(), PermanentNotificationReceiver.class);
+                PackageManager pm = getContext().getPackageManager();
+
+                boolean value = (boolean) newValue;
+
+                if (value) {
+                    // enable receiver
+                    pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+
+                    // start it
+                    getContext().sendBroadcast(new Intent(getContext(), PermanentNotificationReceiver.class));
+                } else {
+                    // disable receiver
+                    pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+                    // remove the notification
+                    NotificationManagerCompat.from(getContext()).cancel(PermanentNotificationReceiver.NOTIFICATION_ID);
+                }
+            }
+            return true;
+        }));
 
         findPreference(getString(R.string.PREFS_SEND_FEEDBACK)).setOnPreferenceClickListener(preference -> {
             AlertDialog ad = new AlertDialog.Builder(getContext())
@@ -148,7 +174,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     String finCurrent = current;
                     String finPermanent = permanent;
 
-                    new Handler(Looper.getMainLooper()).post(() ->{
+                    new Handler(Looper.getMainLooper()).post(() -> {
                         String newBody = finBody;
                         newBody += "\nCurrent schedule:\n\n" + finCurrent + "\n";
                         newBody += "\nPermanent schedule:\n\n" + finPermanent + "\n";
