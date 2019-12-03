@@ -1,34 +1,27 @@
 ![icon](app/src/main/res/mipmap-xxxhdpi/ic_launcher.png)
 
-[<img alt='Nyní na Google Play' height="80px" src='https://play.google.com/intl/en_us/badges/static/images/badges/cs_badge_web_generic.png'/>](https://play.google.com/store/apps/details?id=cz.vitskalicky.lepsirozvrh&utm_source=github&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1)
+# Fork lepšího rozvrhu
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-cs.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/packages/cz.vitskalicky.lepsirozvrh)
+Fork rychlejšího a přehlednějšího klienta pro rozvrh systému Bakláři. Původní repositář jsem forknul, protože mi docházela trpělivost s absencí trvalého upozornění.
 
-# Lepší rozvrh
+## Hlavní funkce oproti původnímu repositáři
 
-Rychlejší a přehlednější klient pro rozvrh systému Bakláři. Aplikaci jsem vytvořil,
-protože mi docházela trpělivost s nepřehledností a hlavně pomalostí oficiální
-aplikace.
+### Trvalé upozornění
 
-## Hlavní funkce
+V nastavení je možnost zapnout trvalé upozornění, které ukazuje současnou a následující hodinu.
 
-- Velmi rychlé zobrazení rozvrhu — Kombinuje offline a online data, aby se rozvrh zobrazil do vteřiny.
-- Plynulý offline režim — Lepší rozvrh si všechna načítaná data na pozadí uloží pro použití bez internetu.
-- Přehledné rozhraní — Snadné a rychlé přepínání mezi týdny
-- Svobodný software — Žádné reklamy, žádné špehování, zdarma a navždy.
+#### Verze
 
-## Připravované funkce
-
-- Widget
--Trvalé upozornění, hlásící příští hodinu
-- Další motivy (tmavý, černobílý, růžovo-fialový s červenými puntíky)
-- Vaše návrhy na GitHubu — https://github.com/vitSkalicky/lepsi-rozvrh/issues
+- Proof of concept - ukázka využívající stejnou hodinu, jako oranžově ohraničená hodina v samotném rozvrhu
+- Proof of concept 2 - vylepšení ukázky
+- Alpha - kompletní přepis, první "použitelná" verze, ukazuje současnou a následující hodinu (a je plná chyb)
+- Alpha 2 - částečný přepis, "použitelnější" verze, ukazuje současnou a následující hodinu (a stále je v ní mnoho chyb)
+- Beta - budoucí kompletně přepsaná verze, neměla by obsahovat moc chyb
+- Release - budoucí verze, vylepšená Beta (snad) bez chyb, až se dostanu sem, navrhnu merge do původního repositáře
 
 ## Licence
 
-Lepší rozvrh je *[svobodný software][1]* licencovaný pod licencí [GPLv3][2], což znamená, že
+Stejně jako Lepší rozvrh, i tento fork je *[svobodný software][1]* licencovaný pod licencí [GPLv3][2], což znamená, že
 
 - můžete aplikaci používat jakkoliv chcete
 - studovat zdrojový kód a upravovat ho jakkoliv chcete
@@ -37,33 +30,29 @@ Lepší rozvrh je *[svobodný software][1]* licencovaný pod licencí [GPLv3][2]
 
 Pokud se chcete dozvědět více o tom, co *svobodný software* znamená a jaké má výhody, přečtěte si jeho [definici][1].
 
-# Better schedule
+# Better schedule Fork
 
-This is faster and less confusing schedule client for Bakaláři. I created this app,
-because I am annoyed by the slowness of the the official app.
+This is a fork of the faster and less confusing schedule client for Bakaláři. I forked the original repository
+because I was annoyed by the absence of the permanent notification in it.
 
-## Main features
+## Main Features Over the Original Repository
 
-- Very fast schedule loading — Combines offline and online data to display schedule within a second.
-- Seamless offline mode — Everything is cached in the background so that schedule can be shown even when you are offline.
-- Simple interface — Easy switching between weeks.
-- Free and open source software — No ads, no spying, free, forever.
+### Permanent Notification
 
-## Coming soon
+In the application settings, there is a new option to enable a permanent notification showing current and the next lesson
 
-- Widget
-- Permanent notification, displaying the next lesson
-- More themes (dark, black & white, ...)
-- Your suggestions on GitHub — https://github.com/vitSkalicky/lepsi-rozvrh/issues
+#### Version History
 
-## Licence
+- Proof of concept - uses the same lesson that is highlighted orange in the schedule 
+- Proof of concept 2 - stability improvements and bug fixes
+- Alpha - complete rewrite, the first "usable" version, shows current and the next lesson (and is riddled with bugs)
+- Alpha 2 - partial rewrite, a "more usable" version, shows current and the next lesson (and still contains many bugs)
+- Beta - a future complete rewrite that should't contain many bugs
+- Release - a future version, improved Beta (hopefully) without any bugs, when I get here, I will offer a merge with the original repository
 
-Better Schedule is a *[free software][3]* (not just a freeware) licensed under [GPLv3][2].
+## License
 
-# Screenshots
-
-<img src="fastlane/metadata/android/en/images/phoneScreenshots/screenshot%201.png" width="500px">
-<img src="fastlane/metadata/android/en/images/phoneScreenshots/screenshot%202.png" width="500px">
+Like Better schedule, this fork is also is a *[free software][3]* (not just a freeware) licensed under [GPLv3][2].
 
 [1]: https://www.gnu.org/philosophy/free-sw.cs.html
 [2]: https://www.gnu.org/licenses/gpl-3.0.en.html
