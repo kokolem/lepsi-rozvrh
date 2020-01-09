@@ -1,22 +1,22 @@
 package cz.vitskalicky.lepsirozvrh.activity;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.TooltipCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.appcompat.widget.TooltipCompat;
-import androidx.core.content.ContextCompat;
+import java.io.File;
+import java.io.FilenameFilter;
 
 import cz.vitskalicky.lepsirozvrh.AppSingleton;
 import cz.vitskalicky.lepsirozvrh.DisplayInfo;
@@ -24,14 +24,15 @@ import cz.vitskalicky.lepsirozvrh.R;
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
-import cz.vitskalicky.lepsirozvrh.permanentNotification.PermanentNotificationReceiver;
+import cz.vitskalicky.lepsirozvrh.notification.PermanentNotification;
 import cz.vitskalicky.lepsirozvrh.settings.SettingsActivity;
 import cz.vitskalicky.lepsirozvrh.view.RozvrhTableFragment;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String TAG = RozvrhTableFragment.class.getSimpleName();
-    public static final String TAG_TIMER = TAG + "-timer";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG_TIMER = TAG + "-timer";
 
+    public static final String EXTRA_JUMP_TO_TODAY = MainActivity.class.getCanonicalName() + ".JUMP_TO_TODAY";
 
     Context context = this;
 
@@ -59,8 +60,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createNotificationChannelForPermanentNotification();
-
         checkLogin();
 
         rozvrhAPI = AppSingleton.getInstance(context).getRozvrhAPI();
@@ -78,9 +77,9 @@ public class MainActivity extends AppCompatActivity {
         infoLine = findViewById(R.id.infoLine);
         displayInfo.addOnMessageChangeListener((oldMessage, newMessage) -> {
             setInfoText(newMessage);
-            if (displayInfo.getErrorMessage() != null) {
+            if (displayInfo.getErrorMessage() != null){
                 TooltipCompat.setTooltipText(ibRefresh, displayInfo.getErrorMessage());
-            } else {
+            }else {
                 TooltipCompat.setTooltipText(ibRefresh, getText(R.string.refresh));
             }
         });
@@ -133,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
             //rtFragment.displayWeek(week);
         });
         displayInfo.addOnLoadingStateChangeListener((oldState, newState) -> {
-            if (newState == DisplayInfo.LOADED) {
+            if (newState == DisplayInfo.LOADED){
                 ibRefresh.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 ibRefresh.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_refresh_black_24));
@@ -141,10 +140,30 @@ public class MainActivity extends AppCompatActivity {
                 ibRefresh.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 ibRefresh.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_refresh_problem_black_24dp));
-            } else if (newState == DisplayInfo.LOADING) {
+            } else if (newState == DisplayInfo.LOADING){
                 ibRefresh.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
             }
+        });
+        ibSettings.setOnLongClickListener(v -> {
+            File dir = context.getFilesDir();
+
+            FilenameFilter filter = new FilenameFilter() {
+                @Override
+                public boolean accept(File fileDir, String name) {
+                    if (fileDir == dir) {
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            String[] fileNames = dir.list(filter);
+
+            for (String item : fileNames) {
+                context.deleteFile(item);
+            }
+            return true;
         });
 
         rtFragment.createViews();
@@ -163,27 +182,39 @@ public class MainActivity extends AppCompatActivity {
 
         checkLogin();
 
-        if (!SharedPrefs.containsPreference(context, R.string.PREFS_SHOW_INFO_LINE) || SharedPrefs.getBooleanPreference(context, R.string.PREFS_SHOW_INFO_LINE)) {
+        if (!SharedPrefs.containsPreference(context, R.string.PREFS_SHOW_INFO_LINE) || SharedPrefs.getBooleanPreference(context, R.string.PREFS_SHOW_INFO_LINE)){
             infoLine.setVisibility(View.VISIBLE);
-        } else {
+        }else {
             infoLine.setVisibility(View.GONE);
         }
 
-        rtFragment.displayWeek(week, true);
+        Intent intent = getIntent();
+        boolean jumpToToday = intent.getBooleanExtra(EXTRA_JUMP_TO_TODAY,false);
+        if (jumpToToday){
+            rtFragment.displayWeek(0, true);
+            intent.removeExtra(EXTRA_JUMP_TO_TODAY);
+        }else {
+            rtFragment.displayWeek(week, true);
+        }
+        boolean fromNotification = intent.getBooleanExtra(PermanentNotification.EXTRA_NOTIFICATION, false);
+        intent.removeExtra(PermanentNotification.EXTRA_NOTIFICATION);
+        if (fromNotification){
+            PermanentNotification.showInfoDialog(context, false);
+        }
     }
 
     /**
      * shows/hides buttons accordingly to current state. My english is bad, but you got the point.
      */
-    private void showHideButtons() {
-        if (week == 0) {
+    private void showHideButtons(){
+        if (week == 0){
             ibPermanent.setVisibility(View.VISIBLE);
             ibCurrent.setVisibility(View.GONE);
-        } else {
+        }else{
             ibPermanent.setVisibility(View.GONE);
             ibCurrent.setVisibility(View.VISIBLE);
         }
-        if (week == Integer.MAX_VALUE) {
+        if (week == Integer.MAX_VALUE){
             ibNext.setVisibility(View.GONE);
             ibPrev.setVisibility(View.GONE);
         } else {
@@ -192,13 +223,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setInfoText(String text) {
+    private void setInfoText(String text){
         infoLine.setText(text);
     }
 
-    public void checkLogin() {
-        if (Login.checkLogin(this) != null) {
-            if (rozvrhAPI != null) {
+    public void checkLogin(){
+        if (Login.checkLogin(this) != null){
+            if (rozvrhAPI != null){
                 rozvrhAPI.clearMemory();
             }
             finish();
@@ -206,18 +237,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static final String STATE_WEEK = "week";
-
-    private void createNotificationChannelForPermanentNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.permanent_notification_channel_name);
-            String description = getString(R.string.permanent_notification_channel_description);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(PermanentNotificationReceiver.CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {

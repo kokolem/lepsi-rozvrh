@@ -13,7 +13,7 @@
     <string name="bakalari_logo">Logo Bakalářů</string>
     <string name="username">Přihlašovací jméno</string>
     <string name="password">Heslo</string>
-    <string name="bakalari_server_adress">Adresa vašeho serveru Bakaláři</string>
+    <string name="bakalari_server_adress">Adresa Vašeho serveru Bakaláři</string>
     <string name="choose_school">Vybrat školu</string>
     <string name="login_button">Přihlásit se</string>
     <string name="login_message">Přihlaste se do systému Bakláři</string>
@@ -22,11 +22,11 @@
     <string name="schedule_disabled">Rozvrh není povolen na tomto serveru</string>
     <string name="unexpected_response">Neočekávané odpověď serveru (zkontrolujte adresu)</string>
     <string name="unreachable">Server nedostupný (zkotrolujte internetové připojení a adresu serveru)</string>
-    <string name="enter_username">Zadejte vaše přihlašovací jméno</string>
-    <string name="enter_url">Zadejte adresu vašeho serveru Bakaláři nebo ťukněte na \"vybrat školu\"</string>
+    <string name="enter_username">Zadejte Vaše přihlašovací jméno</string>
+    <string name="enter_url">Zadejte adresu Vašeho serveru Bakaláři nebo ťukněte na \"vybrat školu\"</string>
     <string name="search">Vyhledávejte…</string>
     <string name="connection_failed">Připojení k serveru selhalo</string>
-    <string name="intensive_operation_in_process">Probíhá náročná operace…</string>
+    <string name="loading_schools_info">Načítání informací o školách…</string>
 
     <string name="info_last_week">Minulý týden</string>
     <string name="info_this_week">Tento týden</string>
@@ -43,22 +43,35 @@
     <string name="teacher">Učitel</string>
     <string name="parent">Rodič</string>
     <string name="logout">Odhlásit se</string>
-    <string name="look">Vzhled</string>
+    <string name="look_and_behaviour">Vzhled a chování</string>
     <string name="info_line">Informační řádek</string>
     <string name="info_line_desc">Zobrazovat informační řádek</string>
     <string name="switch_to_next_week">Přepnout na další týden</string>
     <string name="center_to_current_lesson">Skočit na aktuální hodinu</string>
+    <string name="notification">Stálé upozornění</string>
+    <string name="notification_desc">Zobrazuje ztišené upozornění, které Vás informuje o další hodině.</string>
+    <string name="notification_detials">Stálé upozornění zobrazuje během školy právě probíhající nebo nasledující hodinu. První hodinu začne zobrzovat 1 hodinu před jejím začátkem a na další hodinu přepíná vždy 10 minut před koncem právě probíhající hodiny. Po skončení školy zmizí.\n\nTuto funkci lze vypnout v nastavení.</string>
+    <string name="dont_show_again">Znovu nezobrazovat</string>
 
-    <string name="lesson_teacher">Vyučující</string>
-    <string name="subject_name">Předmět</string>
-    <string name="room">Místnost</string>
-    <string name="absence">Absence</string>
-    <string name="topic">Téma</string>
-    <string name="group">Skupina</string>
-    <string name="change">Změna</string>
-    <string name="lesson_name">Název</string>
-    <string name="notice">Upozornění</string>
-    <string name="cycle">Cyklus</string>
+    <!--These are shown in the lesson details dialog-->
+    <string name="lesson_teacher">Vyučující: </string>
+    <string name="subject_name">Předmět: </string>
+    <string name="room">Místnost: </string>
+    <string name="absence">Absence: </string>
+    <string name="topic">Téma: </string>
+    <string name="group">Skupina: </string>
+    <string name="change">Změna: </string>
+    <string name="lesson_name">Název: </string>
+    <string name="notice">Upozornění: </string>
+    <string name="cycle">Cyklus: </string>
+
+    <string name="group_in_notification">skupina: </string>
+    <string name="in">v</string>
+
+    <string name="next_lesson">Další hodina</string>
+    <string name="prev_lesson">Předchozí hodina</string>
+    <string name="lesson_cancelled">Zrušeno</string>
+    <string name="nothing">Žádná hodina</string>
 
     <string name="close">Zavřít</string>
     <string name="yes">Ano</string>
@@ -78,13 +91,18 @@
     <string name="privacy_policy">Zásady ochrany soukromí</string>
     <string name="oss_licences">Open source linence</string>
     <string name="oss_licences_desc">Zobrzit licence svobodných a open source knihoven</string>
+    <string name="app_version">Verze aplikace</string>
     <string name="email_message">Zde jsou podrobnosti o verzi aplikace. Prosím, neodstraňujte je - jsou nezbytné k řešení většiny chyb a problémů.</string>
     <string name="send_email">Odeslat email…</string>
     <string name="no_email_client">Není nainstalován žádný emailový klient.</string>
     <string name="copy_address">Zkopírovat adresu</string>
-    <string name="copied">Zkopírováno</string>
+    <string name="copied_to_clipboard">Zkopírováno do schránky</string>
     <string name="include_schedule">Přiložit rozvrh?</string>
     <string name="include_schedule_desc">Přejete si přiložit ke zprávě Váš rozvrh?\n\nRozhodně vyberte \"ano\" pokud chcete nahlásit chybu ve vzhledu.</string>
+
+    <string name="notification_channel_name">Trvalé upozornění</string>
+
+    <string name="crash_reports_not_allowed">Automatické hlášení pádů je dovoleno pouze u oficiálních vydání.</string>
 
     <plurals name="info_weeks_back">
         <item quantity="one">%d týden zpět</item>
@@ -96,16 +114,4 @@
         <item quantity="few">%d týdny vpřed</item>
         <item quantity="other">%d týdnů vpřed</item>
     </plurals>
-    <string name="permanent_notification_channel_description">Kanál pro trvalé upozornění s právě probíhající a následující hodinou.</string>
-    <string name="permanent_notification_channel_name">Trvalé upozornění</string>
-    <string name="permanent_notification_loading_schedule">Právě probíhá: načítání rozvrhu</string>
-    <string name="permanent_notification_break">přestávka</string>
-    <string name="notification_lesson_in_class">%1$s v %2$s</string>
-    <string name="notification_lesson_or_break_now_happening">Právě probíhá: %1$s</string>
-    <string name="permanent_notification_loading_schedule_secondary">Může to chvíli trvat…</string>
-    <string name="notification_next_lesson">Následuje: %1$s</string>
-    <string name="notification_no_lesson">volná hodina</string>
-    <string name="functionality">Funkce</string>
-    <string name="permanent_notification">Trvalé upozornění</string>
-    <string name="permanent_notification_desc">Upozornění bude ukazovat právě probíhající a následující hodinu</string>
 </resources>

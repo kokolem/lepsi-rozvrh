@@ -14,6 +14,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.StringRequest;
 
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -41,6 +42,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import cz.vitskalicky.lepsirozvrh.MainApplication;
+import cz.vitskalicky.lepsirozvrh.Mutable;
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.Utils;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
@@ -353,6 +356,48 @@ public class RozvrhAPI {
     }
 
     /**
+     * Simply get the rozvrh and calls the listener whet it has the best result. onFinishedListener may even
+     * be called immediately if requested rozvrh is in memory.
+     */
+    public void justGet(LocalDate date, RozvrhListener listener){
+        Mutable<Boolean> theOther = new Mutable<>(false);
+        Mutable<Integer> netCode = new Mutable<>(-1);
+        Mutable<Rozvrh> cacheResult = new Mutable<>(null);
+        //just to be sure
+        Mutable<Boolean> wasInMemory = new Mutable<>(false);
+        Rozvrh rozvrh = get(date, (code, rozvrh1) -> {
+            if (wasInMemory.getValue()){
+                return;
+            }
+            if (netCode.getValue() == SUCCESS){
+                return;
+            } else if (theOther.getValue()){
+                listener.method(code, rozvrh1);
+            }else{
+                cacheResult.setValue(rozvrh1);
+            }
+            theOther.setValue(true);
+        }, (code, rozvrh1) -> {
+            if (wasInMemory.getValue()){
+                return;
+            }
+            netCode.setValue(code);
+            if (code == SUCCESS){
+                listener.method(code, rozvrh1);
+            }else if (cacheResult.getValue() != null){
+                listener.method(SUCCESS, cacheResult.getValue());
+            }else if (theOther.getValue()){
+                listener.method(code, null);
+            }
+            theOther.setValue(true);
+        });
+        wasInMemory.setValue(rozvrh != null);
+        if (rozvrh != null){
+            listener.method(SUCCESS, rozvrh);
+        }
+    }
+
+    /**
      * Caches week to memory (and file cache) and fetches a fresh one from network. (Only if it is not in memory already)
      *
      * @param date monday identifying week.
@@ -420,10 +465,11 @@ public class RozvrhAPI {
     private void triggerWeekLoadListeners(LocalDate week, int code, Rozvrh rozvrh){
         List<RozvrhListener> list = activeListeners.get(week);
         if (list != null){
-            for (RozvrhListener item :list) {
+            List<RozvrhListener> copyList = new LinkedList<>(list);
+            list.clear();
+            for (RozvrhListener item :copyList) {
                 item.method(code, rozvrh);
             }
-            list.clear();
         }
         active.remove(week);
     }
@@ -431,7 +477,7 @@ public class RozvrhAPI {
 
 
     /**
-     * Prevents rozvrhs from being in memory for too long and therefore forces them to be refreshed from net after 3 hours
+     * Puts a rozvrh into object's memory. Also prevents rozvrhs from being in memory for too long and therefore forces them to be refreshed from net after 3 hours
      */
     private Rozvrh putToMemory(LocalDate date, Rozvrh item){
         lastUpdated.put(date, LocalTime.now());
@@ -554,5 +600,31 @@ public class RozvrhAPI {
             }
         }, context);
         requestQueue.add(request);
+    }
+
+    public void getNextNotificationUpdateTime(TimeListener listener) {
+        justGet(Utils.getCurrentMonday(), (code, rozvrh) -> {
+            LocalDateTime updateTime = null;
+            int code1 = 0;
+            if (rozvrh != null){
+                Rozvrh.GetNCLCTreturnValues values = rozvrh.getNextCurrentLessonChangeTime();
+                updateTime = values.localDateTime;
+                code1 = values.errCode;
+            }
+            if (updateTime != null){
+                listener.method(updateTime);
+            }else if (code1 == 2){
+                //old schedule -> try the next week
+                justGet(Utils.getCurrentMonday().plusWeeks(1), (code2, rozvrh1) -> {
+                    listener.method(rozvrh1 == null ? null : rozvrh1.getNextCurrentLessonChangeTime().localDateTime);
+                });
+            } else {
+                listener.method(null);
+            }
+        });
+    }
+
+    public static interface TimeListener{
+        public void method(LocalDateTime updateTime);
     }
 }
