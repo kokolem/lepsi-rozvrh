@@ -1,6 +1,6 @@
 package cz.vitskalicky.lepsirozvrh.notification;
 
-import android.app.Dialog;
+import android.app.Application;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -13,14 +13,12 @@ import android.widget.CheckBox;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.RemoteInput;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.text.HtmlCompat;
 
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
-import java.util.Locale;
 
 import cz.vitskalicky.lepsirozvrh.BuildConfig;
 import cz.vitskalicky.lepsirozvrh.MainApplication;
@@ -32,6 +30,7 @@ import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 import cz.vitskalicky.lepsirozvrh.items.Rozvrh;
 import cz.vitskalicky.lepsirozvrh.items.RozvrhHodina;
+import io.sentry.util.Util;
 
 public class PermanentNotification {
     public static final int PERMANENT_NOTIFICATION_ID = 7055713;
@@ -39,41 +38,46 @@ public class PermanentNotification {
     public static final String PREF_DONT_SHOW_INFO_DIALOG = "dont-show-notification-info-dialog-again";
     public static final String EXTRA_NOTIFICATION = PermanentNotification.class.getCanonicalName() + "-extra-notification";
 
-    /**
-     * Same as {@link #update(RozvrhHodina, int, Context)}, but gets the RozvrhHodina for you.
-     * @param onFinished called when finished (Rozvrh may be fetched from the internet).
-     */
-    public static void update(MainApplication application, RozvrhAPI rozvrhAPI, Utils.Listener onFinished){
+    public static void update(RozvrhAPI rozvrhAPI, MainApplication application, Utils.Listener onFinished){
         Context context = application;
         if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_NOTIFICATION, true)){
             update(null,0, context);
-            onFinished.method();
             return;
         }
-        rozvrhAPI.justGet(Utils.getDisplayWeekMonday(context), (code, rozvrh) -> {
-            if (rozvrh != null){
-                Rozvrh.GetNLreturnValues nextLessonInfo = rozvrh.getHighlightLesson(true);
-                int offset = application.getNotificationState().getOffset();
-                RozvrhHodina rozvrhHodina = nextLessonInfo == null ? null : nextLessonInfo.rozvrhHodina;
-                if (rozvrhHodina == null){
-                    update(rozvrhHodina,0, context);
-                }else {
-                    List<RozvrhHodina> hodiny = rozvrh.getDny().get(nextLessonInfo.dayIndex).getHodiny();
-                    int hodinaIndex = nextLessonInfo.lessonIndex + offset;
-                    if (hodinaIndex < 0 || hodinaIndex > hodiny.size() - 1){
-                        rozvrhHodina = null;
-                    }else {
-                        rozvrhHodina = hodiny.get(hodinaIndex);
-                    }
-                    update(rozvrhHodina, offset, context);
-                }
-                application.scheduleNotificationUpdate(successful -> {
-                    onFinished.method();
-                });
-            } else {
-                onFinished.method();
-            }
+        rozvrhAPI.getRozvrh(Utils.getDisplayWeekMonday(context), rozvrhWrapper -> {
+            update(rozvrhWrapper.getRozvrh(), application);
+            onFinished.method();
         });
+    }
+
+    /**
+     * Same as {@link #update(RozvrhHodina, int, Context)}, but gets the RozvrhHodina for you.
+     */
+    public static void update(Rozvrh rozvrh, MainApplication application){
+        Context context = application;
+        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_NOTIFICATION, true)){
+            update(null,0, context);
+            return;
+        }
+        if (rozvrh != null){
+            Rozvrh.GetNLreturnValues nextLessonInfo = rozvrh.getHighlightLesson(true);
+            int offset = application.getNotificationState().getOffset();
+            RozvrhHodina rozvrhHodina = nextLessonInfo == null ? null : nextLessonInfo.rozvrhHodina;
+            if (rozvrhHodina == null){
+                update(null,0, context);
+            }else {
+                List<RozvrhHodina> hodiny = rozvrh.getDny().get(nextLessonInfo.dayIndex).getHodiny();
+                int hodinaIndex = nextLessonInfo.lessonIndex + offset;
+                if (hodinaIndex < 0 || hodinaIndex > hodiny.size() - 1){
+                    rozvrhHodina = null;
+                }else {
+                    rozvrhHodina = hodiny.get(hodinaIndex);
+                }
+                update(rozvrhHodina, offset, context);
+            }
+            application.scheduleNotificationUpdate(rozvrh);
+        }
+
     }
 
     /**
@@ -183,6 +187,11 @@ public class PermanentNotification {
         }
         content = contentString;
 
+        CharSequence expanded = content;
+        if (!mistnost.isEmpty()){
+            expanded = expanded + ", " + context.getString(R.string.room) + ": " + mistnost;
+        }
+
         Intent nextIntent = new Intent(context, NotiBroadcastReciever.class);
         nextIntent.setAction(NotiBroadcastReciever.ACTION_NEXT_PREV);
         nextIntent.putExtra(NotiBroadcastReciever.EXTRA_NEXT_PREV, 1);
@@ -217,6 +226,8 @@ public class PermanentNotification {
                 .setSound(Uri.parse("android.resource://" + BuildConfig.APPLICATION_ID + "/" + R.raw.silence))
                 .setVibrate(new long[]{})
                 .setOnlyAlertOnce(true)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(expanded))
                 .addAction(R.drawable.ic_navigate_before_black_24dp, context.getString(R.string.prev_lesson), prevPendingIntent)
                 .addAction(R.drawable.ic_navigate_next_black_24dp,context.getString(R.string.next_lesson), nextPendingIntent)
                 ;
