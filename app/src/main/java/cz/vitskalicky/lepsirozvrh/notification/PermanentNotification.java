@@ -1,6 +1,5 @@
 package cz.vitskalicky.lepsirozvrh.notification;
 
-import android.app.Application;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -30,7 +29,6 @@ import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 import cz.vitskalicky.lepsirozvrh.items.Rozvrh;
 import cz.vitskalicky.lepsirozvrh.items.RozvrhHodina;
-import io.sentry.util.Util;
 
 public class PermanentNotification {
     public static final int PERMANENT_NOTIFICATION_ID = 7055713;
@@ -40,7 +38,14 @@ public class PermanentNotification {
 
     public static void update(RozvrhAPI rozvrhAPI, MainApplication application, Utils.Listener onFinished){
         Context context = application;
-        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_NOTIFICATION, true)){
+
+        // R.string.LEGACY_NOTIFICATION stores if legacy notification (now called detailed notification) was turned on
+        // R.string.PERMANENT_NOTIFICATION stores which version of the notification is selected or if any is selected at all
+        // 0 = notification turned off (default)
+        // 1 = detailed (legacy) notification
+        // 2 = progress bar (new) notification
+        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+        !SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")){
             update(null,0, context);
             return;
         }
@@ -55,7 +60,14 @@ public class PermanentNotification {
      */
     public static void update(Rozvrh rozvrh, MainApplication application){
         Context context = application;
-        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_NOTIFICATION, true)){
+
+        // R.string.LEGACY_NOTIFICATION stores if legacy notification (now called detailed notification) was turned on
+        // R.string.PERMANENT_NOTIFICATION stores which version of the notification is selected or if any is selected at all
+        // 0 = notification turned off (default)
+        // 1 = detailed (legacy) notification
+        // 2 = progress bar (new) notification
+        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+                !SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")){
             update(null,0, context);
             return;
         }
@@ -75,7 +87,7 @@ public class PermanentNotification {
                 }
                 update(rozvrhHodina, offset, context);
             }
-            application.scheduleNotificationUpdate(rozvrh);
+            application.scheduleDetailedNotificationUpdate(rozvrh);
         }
 
     }
@@ -88,7 +100,8 @@ public class PermanentNotification {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         boolean isTeacher = Login.isTeacher(context);
 
-        if ((hodina == null && offset == 0) || !SharedPrefs.getBooleanPreference(context, R.string.PREFS_NOTIFICATION, true)) {
+        if ((hodina == null && offset == 0) || !SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, true) ||
+        !SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")) {
             notificationManager.cancel(PERMANENT_NOTIFICATION_ID);
             return;
         }

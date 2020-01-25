@@ -5,4 +5,9 @@
         <item>V neděli</item>
         <item>V sobotu</item>
     </string-array>
+    <string-array name="permanent_notification_entries">
+        <item>Vypnuto</item>
+        <item>Detailní</item>
+        <item>S ukazatelem průběhu hodiny</item>
+    </string-array>
 </resources>

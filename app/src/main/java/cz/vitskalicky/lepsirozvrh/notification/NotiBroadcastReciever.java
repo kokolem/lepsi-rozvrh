@@ -3,10 +3,7 @@ package cz.vitskalicky.lepsirozvrh.notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
-
-import androidx.core.app.RemoteInput;
 
 import cz.vitskalicky.lepsirozvrh.AppSingleton;
 import cz.vitskalicky.lepsirozvrh.BuildConfig;
@@ -41,7 +38,7 @@ public class NotiBroadcastReciever extends BroadcastReceiver {
         if (intent != null && intent.getAction() != null && intent.getAction().equals(ACTION_NEXT_PREV) && intent.hasExtra(EXTRA_NEXT_PREV)){
             int offset = intent.getIntExtra(EXTRA_NEXT_PREV, 0);
             application.getNotificationState().setOffset(application.getNotificationState().getOffset() + offset);
-            application.scheduleNotificationUpdate(application.getNotificationState().getOffsetResetTime());
+            application.scheduleDetailedNotificationUpdate(application.getNotificationState().getOffsetResetTime());
         }
 
         PermanentNotification.update(rozvrhAPI, application, () -> pendingResult.finish());

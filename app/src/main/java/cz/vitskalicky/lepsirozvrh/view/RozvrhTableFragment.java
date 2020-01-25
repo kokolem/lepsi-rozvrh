@@ -178,10 +178,10 @@ public class RozvrhTableFragment extends Fragment {
                 rozvrhAPI.getNextNotificationUpdateTime(updateTime -> {
                     if (current == null){
                         if (updateTime != null){
-                            mainApplication.scheduleNotificationUpdate(updateTime);
+                            mainApplication.scheduleDetailedNotificationUpdate(updateTime);
                         }
                     }else if (!current.equals(updateTime)){
-                        mainApplication.scheduleNotificationUpdate(updateTime);
+                        mainApplication.scheduleDetailedNotificationUpdate(updateTime);
                     }
                 });
             }

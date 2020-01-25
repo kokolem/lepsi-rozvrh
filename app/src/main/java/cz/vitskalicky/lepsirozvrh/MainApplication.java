@@ -12,7 +12,6 @@ import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -37,8 +36,15 @@ public class MainApplication extends Application {
 
     private NotificationState notificationState = null;
     private LiveData<RozvrhWrapper> notificationLiveData = null;
+
+    // R.string.LEGACY_NOTIFICATION stores if legacy notification (now called detailed notification) was turned on
+    // R.string.PERMANENT_NOTIFICATION stores which version of the notification is selected or if any is selected at all
+    // 0 = notification turned off (default)
+    // 1 = detailed (legacy) notification
+    // 2 = progress bar (new) notification
     private Observer<RozvrhWrapper> notificationObserver = rozvrhWrapper -> {
-        if (!SharedPrefs.getBooleanPreference(this, R.string.PREFS_NOTIFICATION, true)){
+        if (!SharedPrefs.getBooleanPreference(this, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+                !SharedPrefs.getStringPreference(this, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")){
             return;
         }
         PermanentNotification.update(rozvrhWrapper.getRozvrh(), this);
@@ -72,10 +78,17 @@ public class MainApplication extends Application {
         }
 
         notificationState = new NotificationState(this);
-        if (SharedPrefs.getBooleanPreference(this, R.string.PREFS_NOTIFICATION, true)){
-            enableNotification();
+
+        // R.string.LEGACY_NOTIFICATION stores if legacy notification (now called detailed notification) was turned on
+        // R.string.PERMANENT_NOTIFICATION stores which version of the notification is selected or if any is selected at all
+        // 0 = notification turned off (default)
+        // 1 = detailed (legacy) notification
+        // 2 = progress bar (new) notification
+        if (SharedPrefs.getBooleanPreference(this, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+                SharedPrefs.getStringPreference(this, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")){
+            enableDetailedNotification();
         }else {
-            disableNotification();
+            disableDetailedNotification();
         }
     }
 
@@ -91,14 +104,14 @@ public class MainApplication extends Application {
      * Schedules AlarmManager for notification update
      * @param triggerTime
      */
-    public void scheduleNotificationUpdate(LocalDateTime triggerTime){
+    public void scheduleDetailedNotificationUpdate(LocalDateTime triggerTime){
         if (triggerTime == null){
             triggerTime = LocalDateTime.now().plusDays(1);
         }
         if (notificationState.getOffsetResetTime() != null && triggerTime.isAfter(notificationState.getOffsetResetTime())){
             triggerTime = notificationState.getOffsetResetTime();
         }
-        PendingIntent pendingIntent = getNotiPendingIntent(this);
+        PendingIntent pendingIntent = getDetailedNotiPendingIntent(this);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, triggerTime.toDate().getTime(),60 * 60000,  pendingIntent);
 
@@ -106,7 +119,7 @@ public class MainApplication extends Application {
         notificationState.scheduledNotificationTime = triggerTime;
     }
 
-    private static PendingIntent getNotiPendingIntent(Context context){
+    private static PendingIntent getDetailedNotiPendingIntent(Context context){
         Intent intent = new Intent(context, NotiBroadcastReciever.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context.getApplicationContext(), NotiBroadcastReciever.REQUEST_CODE, intent, 0);
@@ -121,33 +134,33 @@ public class MainApplication extends Application {
      * ({@link Rozvrh#getNextCurrentLessonChangeTime()} returned error, because this is an
      * old/permanent schedule).
      */
-    public boolean scheduleNotificationUpdate(Rozvrh rozvrh){
+    public boolean scheduleDetailedNotificationUpdate(Rozvrh rozvrh){
         Rozvrh.GetNCLCTreturnValues values = rozvrh.getNextCurrentLessonChangeTime();
         if (values.localDateTime == null){
             return false;
         }
-        scheduleNotificationUpdate(values.localDateTime);
+        scheduleDetailedNotificationUpdate(values.localDateTime);
         return true;
     }
 
     /**
-     * Same as {@link #scheduleNotificationUpdate(Rozvrh)}, but gets the rozvrh for you.
+     * Same as {@link #scheduleDetailedNotificationUpdate(Rozvrh)}, but gets the rozvrh for you.
      * @param onFinished
      */
-    public void scheduleNotificationUpdate(onFinishedListener onFinished){
+    public void scheduleDetailedNotificationUpdate(onFinishedListener onFinished){
         RozvrhAPI rozvrhAPI = AppSingleton.getInstance(this).getRozvrhAPI();
         rozvrhAPI.getNextNotificationUpdateTime(updateTime -> {
             if (updateTime == null){
                 onFinished.onFinished(false);
             }else {
-                scheduleNotificationUpdate(updateTime);
+                scheduleDetailedNotificationUpdate(updateTime);
                 onFinished.onFinished(true);
             }
         });
     }
 
-    public void enableNotification(){
-        SharedPrefs.setBoolean(this, getString(R.string.PREFS_NOTIFICATION), true);
+    public void enableDetailedNotification(){
+        SharedPrefs.setString(this, getString(R.string.PREFS_PERMANENT_NOTIFICATION), "1");
         RozvrhAPI rozvrhAPI = AppSingleton.getInstance(this).getRozvrhAPI();
         if (notificationLiveData != null)
             notificationLiveData.removeObserver(notificationObserver);
@@ -156,10 +169,18 @@ public class MainApplication extends Application {
         PermanentNotification.update(notificationLiveData.getValue() == null ? null : notificationLiveData.getValue().getRozvrh(), this);
     }
 
-    public void disableNotification(){
+    public void disableDetailedNotification(){
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.cancel(getNotiPendingIntent(this));
-        SharedPrefs.setBoolean(this, getString(R.string.PREFS_NOTIFICATION), false);
+        alarmManager.cancel(getDetailedNotiPendingIntent(this));
+
+        // R.string.LEGACY_NOTIFICATION stores if legacy notification (now called detailed notification) was turned on
+        // R.string.PERMANENT_NOTIFICATION stores which version of the notification is selected or if any is selected at all
+        // 0 = notification turned off (default)
+        // 1 = detailed (legacy) notification
+        // 2 = progress bar (new) notification
+        SharedPrefs.setBoolean(this, getString(R.string.PREFS_LEGACY_NOTIFICATION), false);
+        SharedPrefs.setString(this, getString(R.string.PREFS_PERMANENT_NOTIFICATION), "0");
+
         PermanentNotification.update(null,0, this);
         if (notificationLiveData != null) {
             notificationLiveData.removeObserver(notificationObserver);

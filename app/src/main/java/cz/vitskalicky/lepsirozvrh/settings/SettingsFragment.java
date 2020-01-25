@@ -26,7 +26,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 
 import cz.vitskalicky.lepsirozvrh.BuildConfig;
 import cz.vitskalicky.lepsirozvrh.MainApplication;
@@ -60,7 +59,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         SwitchPreferenceCompat sendCrashReportsPreference = findPreference(getString(R.string.PREFS_SEND_CRASH_REPORTS));
         //Crash reports are allowed on official release builds only. (see build.gradle)
-        if (BuildConfig.ALLOW_SENTRY){
+        if (BuildConfig.ALLOW_SENTRY) {
             sendCrashReportsPreference.setOnPreferenceChangeListener((preference, newValue) -> {
                 if (newValue instanceof Boolean && getActivity() != null) {
                     boolean value = (boolean) newValue;
@@ -73,7 +72,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             });
             sendCrashReportsPreference.setVisible(true);
-        }else {
+        } else {
             sendCrashReportsPreference.setVisible(false);
         }
 
@@ -113,16 +112,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ListPreference switchToNextWeek = findPreference(getString(R.string.PREFS_SWITCH_TO_NEXT_WEEK));
         switchToNextWeek.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
 
-        SwitchPreferenceCompat notificationPreference = findPreference(getString(R.string.PREFS_NOTIFICATION));
-        notificationPreference.setOnPreferenceChangeListener((preference, newValue) -> {
-            if ((Boolean) newValue) {
-                PermanentNotification.showInfoDialog(getContext(), false);
-                ((MainApplication) getContext().getApplicationContext()).enableNotification();
-            } else {
-                ((MainApplication) getContext().getApplicationContext()).disableNotification();
+        ListPreference permanentNotificationPreference = findPreference(getString(R.string.PREFS_PERMANENT_NOTIFICATION));
+        permanentNotificationPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
+        permanentNotificationPreference.setOnPreferenceChangeListener(((preference, newValue) -> {
+            switch ((String) newValue) {
+                case "0":
+                    ((MainApplication) getContext().getApplicationContext()).disableDetailedNotification();
+                    break;
+                case "1":
+                    PermanentNotification.showInfoDialog(getContext(), false);
+                    ((MainApplication) getContext().getApplicationContext()).enableDetailedNotification();
             }
             return true;
-        });
+        }));
 
         Preference appVersionPreference = findPreference(getString(R.string.PREFS_APP_VERSION));
         String versionText = BuildConfig.FLAVOR + "-" + BuildConfig.BUILD_TYPE + " " + BuildConfig.VERSION_NAME + " (" + BuildConfig.GitHash + ")";
@@ -151,9 +153,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             body = "\n\n-----------------------------\n" + getContext().getString(R.string.email_message) + "\n Device OS: Android \n Device OS version: " +
                     Build.VERSION.RELEASE + "\n App Version: " + body + "\n Commit hash: " + BuildConfig.GitHash + "Build type: " + BuildConfig.BUILD_TYPE + "\n Device Brand: " + Build.BRAND +
                     "\n Device Model: " + Build.MODEL + "\n Device Manufacturer: " + Build.MANUFACTURER;
-            if (Sentry.getContext() != null && Sentry.getContext().getUser() != null){
+            if (Sentry.getContext() != null && Sentry.getContext().getUser() != null) {
                 body += "\n Sentry client id: " + Sentry.getStoredClient().getContext().getUser().getId();
-            }else {
+            } else {
                 body += "\n Sentry client id not available";
             }
             body += "\n Sentry enabled: " + SharedPrefs.getBooleanPreference(getContext(), R.string.PREFS_SEND_CRASH_REPORTS);
@@ -236,7 +238,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Toast.makeText(getContext(),"!",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "!", Toast.LENGTH_SHORT).show();
         }
     }
 }
