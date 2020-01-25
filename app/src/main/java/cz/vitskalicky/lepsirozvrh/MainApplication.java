@@ -23,9 +23,9 @@ import java.util.Random;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhWrapper;
 import cz.vitskalicky.lepsirozvrh.items.Rozvrh;
-import cz.vitskalicky.lepsirozvrh.notification.NotiBroadcastReciever;
-import cz.vitskalicky.lepsirozvrh.notification.NotificationState;
-import cz.vitskalicky.lepsirozvrh.notification.PermanentNotification;
+import cz.vitskalicky.lepsirozvrh.notification.detailed.NotiBroadcastReceiver;
+import cz.vitskalicky.lepsirozvrh.notification.detailed.NotificationState;
+import cz.vitskalicky.lepsirozvrh.notification.detailed.PermanentNotification;
 import io.sentry.Sentry;
 import io.sentry.android.AndroidSentryClientFactory;
 import io.sentry.event.User;
@@ -120,9 +120,9 @@ public class MainApplication extends Application {
     }
 
     private static PendingIntent getDetailedNotiPendingIntent(Context context){
-        Intent intent = new Intent(context, NotiBroadcastReciever.class);
+        Intent intent = new Intent(context, NotiBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context.getApplicationContext(), NotiBroadcastReciever.REQUEST_CODE, intent, 0);
+                context.getApplicationContext(), NotiBroadcastReceiver.REQUEST_CODE, intent, 0);
         return pendingIntent;
     }
 

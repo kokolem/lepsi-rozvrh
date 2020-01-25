@@ -34,7 +34,7 @@
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-        <receiver android:name=".notification.NotiBroadcastReciever">
+        <receiver android:name=".notification.detailed.NotiBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

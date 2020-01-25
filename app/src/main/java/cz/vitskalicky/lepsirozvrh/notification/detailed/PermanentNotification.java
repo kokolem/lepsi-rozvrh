@@ -1,4 +1,4 @@
-package cz.vitskalicky.lepsirozvrh.notification;
+package cz.vitskalicky.lepsirozvrh.notification.detailed;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -205,15 +205,15 @@ public class PermanentNotification {
             expanded = expanded + ", " + context.getString(R.string.room) + " " + mistnost;
         }
 
-        Intent nextIntent = new Intent(context, NotiBroadcastReciever.class);
-        nextIntent.setAction(NotiBroadcastReciever.ACTION_NEXT_PREV);
-        nextIntent.putExtra(NotiBroadcastReciever.EXTRA_NEXT_PREV, 1);
+        Intent nextIntent = new Intent(context, NotiBroadcastReceiver.class);
+        nextIntent.setAction(NotiBroadcastReceiver.ACTION_NEXT_PREV);
+        nextIntent.putExtra(NotiBroadcastReceiver.EXTRA_NEXT_PREV, 1);
         PendingIntent nextPendingIntent =
                 PendingIntent.getBroadcast(context, 458631, nextIntent, 0);
 
-        Intent prevIntent = new Intent(context, NotiBroadcastReciever.class);
-        prevIntent.setAction(NotiBroadcastReciever.ACTION_NEXT_PREV);
-        prevIntent.putExtra(NotiBroadcastReciever.EXTRA_NEXT_PREV, -1);
+        Intent prevIntent = new Intent(context, NotiBroadcastReceiver.class);
+        prevIntent.setAction(NotiBroadcastReceiver.ACTION_NEXT_PREV);
+        prevIntent.putExtra(NotiBroadcastReceiver.EXTRA_NEXT_PREV, -1);
         PendingIntent prevPendingIntent =
                 PendingIntent.getBroadcast(context, 4586, prevIntent,0);
 

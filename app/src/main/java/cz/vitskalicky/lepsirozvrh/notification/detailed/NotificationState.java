@@ -1,11 +1,10 @@
-package cz.vitskalicky.lepsirozvrh.notification;
+package cz.vitskalicky.lepsirozvrh.notification.detailed;
 
 import android.content.Context;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.DateTimeFormatterBuilder;
 
 
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;

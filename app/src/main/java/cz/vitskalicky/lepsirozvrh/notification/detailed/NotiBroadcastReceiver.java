@@ -1,4 +1,4 @@
-package cz.vitskalicky.lepsirozvrh.notification;
+package cz.vitskalicky.lepsirozvrh.notification.detailed;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,8 +13,8 @@ import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 /**
  * Stands for <b>Noti</b>fication <b>broadcast reciever</b>
  */
-public class NotiBroadcastReciever extends BroadcastReceiver {
-    private static final String TAG = NotiBroadcastReciever.class.getSimpleName();
+public class NotiBroadcastReceiver extends BroadcastReceiver {
+    private static final String TAG = NotiBroadcastReceiver.class.getSimpleName();
     public static final int REQUEST_CODE = 64857;
     /**
      * +1 for next, -1 for prev
