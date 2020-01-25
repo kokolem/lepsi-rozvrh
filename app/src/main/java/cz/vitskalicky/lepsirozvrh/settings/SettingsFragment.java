@@ -130,10 +130,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     ((MainApplication) getContext().getApplicationContext()).disableDetailedNotification();
                     break;
                 case "1":
+                    // disable progress bar notification
+                    getContext().getPackageManager().setComponentEnabledSetting(new ComponentName(getContext(),
+                                    ProgressBarNotiBroadcastReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+                    NotificationManagerCompat.from(getContext()).cancel(ProgressBarNotiBroadcastReceiver.NOTIFICATION_ID);
+
+                    // enable detailed notification
                     DetailedPermanentNotification.showInfoDialog(getContext(), false);
                     ((MainApplication) getContext().getApplicationContext()).enableDetailedNotification();
                     break;
                 case "2":
+                    // disable detailed notification
+                    ((MainApplication) getContext().getApplicationContext()).disableDetailedNotification();
+
+                    // enable progress bar notification
                     getContext().getPackageManager().setComponentEnabledSetting(new ComponentName(getContext(),
                                     ProgressBarNotiBroadcastReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
                             PackageManager.DONT_KILL_APP);
