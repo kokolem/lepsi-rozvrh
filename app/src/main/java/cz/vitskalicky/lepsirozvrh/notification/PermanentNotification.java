@@ -44,8 +44,8 @@ public class PermanentNotification {
         // 0 = notification turned off (default)
         // 1 = detailed (legacy) notification
         // 2 = progress bar (new) notification
-        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
-        !SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")){
+        if (!(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+        SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1"))) {
             update(null,0, context);
             return;
         }
@@ -66,8 +66,8 @@ public class PermanentNotification {
         // 0 = notification turned off (default)
         // 1 = detailed (legacy) notification
         // 2 = progress bar (new) notification
-        if (!SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
-                !SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")){
+        if (!(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+                SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1"))) {
             update(null,0, context);
             return;
         }
@@ -100,8 +100,8 @@ public class PermanentNotification {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         boolean isTeacher = Login.isTeacher(context);
 
-        if ((hodina == null && offset == 0) || !SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, true) ||
-        !SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1")) {
+        if ((hodina == null && offset == 0) || !(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, true) ||
+        SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1"))) {
             notificationManager.cancel(PERMANENT_NOTIFICATION_ID);
             return;
         }
