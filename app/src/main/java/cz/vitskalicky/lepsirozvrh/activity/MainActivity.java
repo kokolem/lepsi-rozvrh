@@ -25,7 +25,7 @@ import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.Login;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhCache;
-import cz.vitskalicky.lepsirozvrh.notification.detailed.PermanentNotification;
+import cz.vitskalicky.lepsirozvrh.notification.detailed.DetailedPermanentNotification;
 import cz.vitskalicky.lepsirozvrh.settings.SettingsActivity;
 import cz.vitskalicky.lepsirozvrh.view.RozvrhTableFragment;
 
@@ -197,10 +197,10 @@ public class MainActivity extends AppCompatActivity {
         }else {
             rtFragment.displayWeek(week, true);
         }
-        boolean fromNotification = intent.getBooleanExtra(PermanentNotification.EXTRA_NOTIFICATION, false);
-        intent.removeExtra(PermanentNotification.EXTRA_NOTIFICATION);
+        boolean fromNotification = intent.getBooleanExtra(DetailedPermanentNotification.EXTRA_NOTIFICATION, false);
+        intent.removeExtra(DetailedPermanentNotification.EXTRA_NOTIFICATION);
         if (fromNotification){
-            PermanentNotification.showInfoDialog(context, false);
+            DetailedPermanentNotification.showInfoDialog(context, false);
         }
     }
 

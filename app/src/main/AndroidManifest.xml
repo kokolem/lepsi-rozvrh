@@ -36,7 +36,15 @@
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
 
         <receiver
-            android:name=".notification.detailed.NotiBroadcastReceiver"
+            android:name=".notification.detailed.DetailedNotiBroadcastReceiver"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".notification.progressBar.ProgressBarNotiBroadcastReceiver"
             android:enabled="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

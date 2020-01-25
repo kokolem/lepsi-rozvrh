@@ -177,7 +177,7 @@ public class RozvrhTableFragment extends Fragment {
             //this should update the notification when the rozvrh changes
             //TODO: and it is dirty as well.
             if (week != null && rozvrh != null && week.equals(Utils.getDisplayWeekMonday(getContext()))){
-                PermanentNotification.update(mainApplication, rozvrhAPI, () -> {});
+                DetailedPermanentNotification.update(mainApplication, rozvrhAPI, () -> {});
             }*/
         } else {
             offline = true;

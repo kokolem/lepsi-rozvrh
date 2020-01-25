@@ -13,8 +13,8 @@ import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 /**
  * Stands for <b>Noti</b>fication <b>broadcast reciever</b>
  */
-public class NotiBroadcastReceiver extends BroadcastReceiver {
-    private static final String TAG = NotiBroadcastReceiver.class.getSimpleName();
+public class DetailedNotiBroadcastReceiver extends BroadcastReceiver {
+    private static final String TAG = DetailedNotiBroadcastReceiver.class.getSimpleName();
     public static final int REQUEST_CODE = 64857;
     /**
      * +1 for next, -1 for prev
@@ -41,6 +41,6 @@ public class NotiBroadcastReceiver extends BroadcastReceiver {
             application.scheduleDetailedNotificationUpdate(application.getNotificationState().getOffsetResetTime());
         }
 
-        PermanentNotification.update(rozvrhAPI, application, () -> pendingResult.finish());
+        DetailedPermanentNotification.update(rozvrhAPI, application, () -> pendingResult.finish());
     }
 }

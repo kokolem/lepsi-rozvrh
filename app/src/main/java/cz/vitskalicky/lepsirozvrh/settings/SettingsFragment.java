@@ -3,6 +3,7 @@ package cz.vitskalicky.lepsirozvrh.settings;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -32,7 +34,8 @@ import cz.vitskalicky.lepsirozvrh.MainApplication;
 import cz.vitskalicky.lepsirozvrh.R;
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 import cz.vitskalicky.lepsirozvrh.Utils;
-import cz.vitskalicky.lepsirozvrh.notification.detailed.PermanentNotification;
+import cz.vitskalicky.lepsirozvrh.notification.detailed.DetailedPermanentNotification;
+import cz.vitskalicky.lepsirozvrh.notification.progressBar.ProgressBarNotiBroadcastReceiver;
 import io.sentry.Sentry;
 
 /**
@@ -117,11 +120,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         permanentNotificationPreference.setOnPreferenceChangeListener(((preference, newValue) -> {
             switch ((String) newValue) {
                 case "0":
+                    // disable progress bar notification
+                    getContext().getPackageManager().setComponentEnabledSetting(new ComponentName(getContext(),
+                                    ProgressBarNotiBroadcastReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                            PackageManager.DONT_KILL_APP);
+                    NotificationManagerCompat.from(getContext()).cancel(ProgressBarNotiBroadcastReceiver.NOTIFICATION_ID);
+
+                    // disable detailed notification
                     ((MainApplication) getContext().getApplicationContext()).disableDetailedNotification();
                     break;
                 case "1":
-                    PermanentNotification.showInfoDialog(getContext(), false);
+                    DetailedPermanentNotification.showInfoDialog(getContext(), false);
                     ((MainApplication) getContext().getApplicationContext()).enableDetailedNotification();
+                    break;
+                case "2":
+                    getContext().getPackageManager().setComponentEnabledSetting(new ComponentName(getContext(),
+                                    ProgressBarNotiBroadcastReceiver.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                            PackageManager.DONT_KILL_APP);
+                    getContext().sendBroadcast(new Intent(getContext(), ProgressBarNotiBroadcastReceiver.class));
+                    break;
             }
             return true;
         }));

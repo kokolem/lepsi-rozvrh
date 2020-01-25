@@ -9,8 +9,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 import cz.vitskalicky.lepsirozvrh.SharedPrefs;
 
-public class NotificationState {
-    private static final String TAG = NotificationState.class.getSimpleName();
+public class DetailedNotificationState {
+    private static final String TAG = DetailedNotificationState.class.getSimpleName();
     public static final String SHARED_PREF_OFFSET = "notification-offset";
     public static final String SHARED_PREF_OFFSET_TIME = "notification-offset-time";
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
@@ -23,7 +23,7 @@ public class NotificationState {
 
     private static final int RESET_OFFSET_AFTER_MINUTES = 5;
 
-    public NotificationState(Context context) {
+    public DetailedNotificationState(Context context) {
         this.context = context;
         offset = SharedPrefs.getInt(context, SHARED_PREF_OFFSET);
         String offsetString = SharedPrefs.getString(context, SHARED_PREF_OFFSET_TIME);

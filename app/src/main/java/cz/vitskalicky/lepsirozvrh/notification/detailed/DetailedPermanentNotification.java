@@ -30,11 +30,11 @@ import cz.vitskalicky.lepsirozvrh.bakaAPI.rozvrh.RozvrhAPI;
 import cz.vitskalicky.lepsirozvrh.items.Rozvrh;
 import cz.vitskalicky.lepsirozvrh.items.RozvrhHodina;
 
-public class PermanentNotification {
+public class DetailedPermanentNotification {
     public static final int PERMANENT_NOTIFICATION_ID = 7055713;
     public static final String PERMANENT_CHANNEL_ID = BuildConfig.APPLICATION_ID + ".permanentNotificationChannel";
     public static final String PREF_DONT_SHOW_INFO_DIALOG = "dont-show-notification-info-dialog-again";
-    public static final String EXTRA_NOTIFICATION = PermanentNotification.class.getCanonicalName() + "-extra-notification";
+    public static final String EXTRA_NOTIFICATION = DetailedPermanentNotification.class.getCanonicalName() + "-extra-notification";
 
     public static void update(RozvrhAPI rozvrhAPI, MainApplication application, Utils.Listener onFinished){
         Context context = application;
@@ -45,7 +45,7 @@ public class PermanentNotification {
         // 1 = detailed (legacy) notification
         // 2 = progress bar (new) notification
         if (!(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
-        SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1"))) {
+        SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "1").equals("1"))) {
             update(null,0, context);
             return;
         }
@@ -67,7 +67,7 @@ public class PermanentNotification {
         // 1 = detailed (legacy) notification
         // 2 = progress bar (new) notification
         if (!(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
-                SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1"))) {
+                SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "1").equals("1"))) {
             update(null,0, context);
             return;
         }
@@ -100,8 +100,8 @@ public class PermanentNotification {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         boolean isTeacher = Login.isTeacher(context);
 
-        if ((hodina == null && offset == 0) || !(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, true) ||
-        SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "0").equals("1"))) {
+        if ((hodina == null && offset == 0) || !(SharedPrefs.getBooleanPreference(context, R.string.PREFS_LEGACY_NOTIFICATION, false) ||
+        SharedPrefs.getStringPreference(context, R.string.PREFS_PERMANENT_NOTIFICATION, "1").equals("1"))) {
             notificationManager.cancel(PERMANENT_NOTIFICATION_ID);
             return;
         }
@@ -205,15 +205,15 @@ public class PermanentNotification {
             expanded = expanded + ", " + context.getString(R.string.room) + " " + mistnost;
         }
 
-        Intent nextIntent = new Intent(context, NotiBroadcastReceiver.class);
-        nextIntent.setAction(NotiBroadcastReceiver.ACTION_NEXT_PREV);
-        nextIntent.putExtra(NotiBroadcastReceiver.EXTRA_NEXT_PREV, 1);
+        Intent nextIntent = new Intent(context, DetailedNotiBroadcastReceiver.class);
+        nextIntent.setAction(DetailedNotiBroadcastReceiver.ACTION_NEXT_PREV);
+        nextIntent.putExtra(DetailedNotiBroadcastReceiver.EXTRA_NEXT_PREV, 1);
         PendingIntent nextPendingIntent =
                 PendingIntent.getBroadcast(context, 458631, nextIntent, 0);
 
-        Intent prevIntent = new Intent(context, NotiBroadcastReceiver.class);
-        prevIntent.setAction(NotiBroadcastReceiver.ACTION_NEXT_PREV);
-        prevIntent.putExtra(NotiBroadcastReceiver.EXTRA_NEXT_PREV, -1);
+        Intent prevIntent = new Intent(context, DetailedNotiBroadcastReceiver.class);
+        prevIntent.setAction(DetailedNotiBroadcastReceiver.ACTION_NEXT_PREV);
+        prevIntent.putExtra(DetailedNotiBroadcastReceiver.EXTRA_NEXT_PREV, -1);
         PendingIntent prevPendingIntent =
                 PendingIntent.getBroadcast(context, 4586, prevIntent,0);
 
