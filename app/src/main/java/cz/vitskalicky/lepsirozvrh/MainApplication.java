@@ -6,8 +6,10 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
@@ -161,6 +163,8 @@ public class MainApplication extends Application {
 
     public void enableDetailedNotification(){
         SharedPrefs.setString(this, getString(R.string.PREFS_PERMANENT_NOTIFICATION), "1");
+        getPackageManager().setComponentEnabledSetting(new ComponentName(this, NotiBroadcastReceiver.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
         RozvrhAPI rozvrhAPI = AppSingleton.getInstance(this).getRozvrhAPI();
         if (notificationLiveData != null)
             notificationLiveData.removeObserver(notificationObserver);
@@ -172,7 +176,8 @@ public class MainApplication extends Application {
     public void disableDetailedNotification(){
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmManager.cancel(getDetailedNotiPendingIntent(this));
-
+        getPackageManager().setComponentEnabledSetting(new ComponentName(this, NotiBroadcastReceiver.class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
         // R.string.LEGACY_NOTIFICATION stores if legacy notification (now called detailed notification) was turned on
         // R.string.PERMANENT_NOTIFICATION stores which version of the notification is selected or if any is selected at all
         // 0 = notification turned off (default)
