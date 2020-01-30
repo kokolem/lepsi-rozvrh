@@ -85,7 +85,7 @@ public class Rozvrh {
     /**
      * @see #getHighlightLesson(boolean)
      */
-    public GetNLreturnValues getHighlightLesson() {
+    public Lesson getHighlightLesson() {
         return getHighlightLesson(false);
     }
 
@@ -94,7 +94,7 @@ public class Rozvrh {
      * if the school is over or this is not the current week.
      * @param forNotification If true, the first lesson won't be highlighted up until one hour before its start
      */
-    public GetNLreturnValues getHighlightLesson(boolean forNotification) {
+    public Lesson getHighlightLesson(boolean forNotification) {
         LocalDate nowDate = LocalDate.now();
         LocalTime nowTime = LocalTime.now();
 
@@ -136,7 +136,7 @@ public class Rozvrh {
             hodinaIndex = -1;
         }
 
-        GetNLreturnValues ret = new GetNLreturnValues();
+        Lesson ret = new Lesson();
         ret.rozvrhHodina = dalsi;
         ret.dayIndex = denIndex;
         ret.lessonIndex = hodinaIndex;
@@ -144,7 +144,7 @@ public class Rozvrh {
         return ret;
     }
 
-    public static class GetNLreturnValues {
+    public static class Lesson {
         public RozvrhHodina rozvrhHodina;
         public int dayIndex;
         public int lessonIndex;
@@ -251,6 +251,223 @@ public class Rozvrh {
             this.errCode = errCode;
         }
     }
+
+    /**
+     * returns today's first lesson
+     * or null if there are no lessons today
+     * or null if this is not the current week
+     */
+    public Lesson getFirstLessonToday() {
+        LocalDate nowDate = LocalDate.now();
+
+        RozvrhDen dneska = null;
+        int denIndex = 0;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+            denIndex++;
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        RozvrhHodina firstLesson = null;
+        int hodinaIndex = 0;
+        for (int i = 0; i < dneska.getHodiny().size(); i++) {
+            RozvrhHodina item = dneska.getHodiny().get(i);
+            if (!item.getTyp().equals("X")) {
+                firstLesson = item;
+                break;
+            }
+            hodinaIndex++;
+        }
+
+        if (firstLesson == null) {
+            return null;
+        }
+
+        Lesson ret = new Lesson();
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = hodinaIndex;
+        ret.rozvrhHodina = firstLesson;
+
+        return ret;
+    }
+
+    /**
+     * returns today's last lesson
+     * or null if there are no lessons today
+     * or null if this is not the current week
+     */
+    public Lesson getLastLessonToday() {
+        LocalDate nowDate = LocalDate.now();
+
+        RozvrhDen dneska = null;
+        int denIndex = 0;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+            denIndex++;
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        RozvrhHodina lastLesson = null;
+        int hodinaIndex = 0;
+        for (int i = dneska.getHodiny().size(); --i >= 0;) {
+            RozvrhHodina item = dneska.getHodiny().get(i);
+            if (!item.getTyp().equals("X")) {
+                lastLesson = item;
+                break;
+            }
+            hodinaIndex++;
+        }
+
+        hodinaIndex = dneska.getHodiny().size() - hodinaIndex -1;
+
+        if (lastLesson == null) {
+            return null;
+        }
+
+        Lesson ret = new Lesson();
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = hodinaIndex;
+        ret.rozvrhHodina = lastLesson;
+
+        return ret;
+    }
+
+    /**
+     * returns the lesson that is currently running
+     * or the one that just ended if it's a break between lessons right now
+     * or null if the school is over
+     * or null if this is not the current week
+     */
+    public Lesson getCurrentLesson() {
+        LocalDate nowDate = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+
+        RozvrhDen dneska = null;
+        int denIndex = 0;
+        for (RozvrhDen item : dny) {
+            if (item.getParsedDatum() == null) //permanent timetable check
+                return null;
+            if (item.getParsedDatum().isEqual(nowDate)) {
+                dneska = item;
+                break;
+            }
+            denIndex++;
+        }
+
+        if (dneska == null) //current timetable check
+            return null;
+
+        RozvrhHodina dalsi = null;
+        int hodinaIndex = 0;
+        for (int i = 0; i < dneska.getHodiny().size(); i++) {
+            RozvrhHodina item = dneska.getHodiny().get(i);
+            try {
+                RozvrhHodina nextItem = dneska.getHodiny().get(i + 1);
+                if ((nowTime.isAfter(item.getParsedBegintime()) || nowTime.isEqual(item.getParsedBegintime())) && nowTime.isBefore(nextItem.getParsedBegintime())) {
+                    dalsi = item;
+                    break;
+                }
+                hodinaIndex++;
+            } catch (IndexOutOfBoundsException e) {
+                if ((nowTime.isAfter(item.getParsedBegintime()) || nowTime.isEqual(item.getParsedBegintime())) && nowTime.isBefore(item.getParsedEndtime())) {
+                    dalsi = item;
+                    break;
+                }
+            }
+        }
+
+        if (dalsi == null) {
+            denIndex = -1;
+            hodinaIndex = -1;
+        }
+
+        Lesson ret = new Lesson();
+        ret.rozvrhHodina = dalsi;
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = hodinaIndex;
+
+
+        return ret;
+    }
+
+    /**
+     * returns the next lesson
+     * or null if the school is over
+     * or null if current lesson is the last one
+     * or null if this is not the current week
+     */
+    public Lesson getNextLesson() {
+        Lesson currentLesson = getCurrentLesson();
+        RozvrhHodina nextLesson;
+
+        if (currentLesson != null) {
+            if (currentLesson.rozvrhHodina == null) return null;
+        } else {
+            return null;
+        }
+
+        int denIndex = currentLesson.dayIndex;
+        int currentLessonIndex = currentLesson.lessonIndex;
+        RozvrhDen dneska = dny.get(denIndex);
+
+        try {
+            nextLesson = dneska.getHodiny().get(currentLessonIndex + 1);
+        } catch (IndexOutOfBoundsException e) {
+            nextLesson = null;
+        }
+
+        int nextLessonIndex;
+        if (nextLesson == null) {
+            denIndex = -1;
+            nextLessonIndex = -1;
+        } else {
+            nextLessonIndex = currentLessonIndex + 1;
+        }
+
+        Lesson ret = new Lesson();
+        ret.rozvrhHodina = nextLesson;
+        ret.dayIndex = denIndex;
+        ret.lessonIndex = nextLessonIndex;
+
+        return ret;
+    }
+
+    /**
+     * returns the current break or lesson
+     * or null if the school is over
+     * or null if this is not the current week
+     */
+    public BreakOrLesson getCurrentBreakOrLesson() {
+        Lesson currentLesson = getCurrentLesson();
+        Lesson nextLesson = getNextLesson();
+
+        if (currentLesson != null) {
+            if (currentLesson.rozvrhHodina == null) return null;
+        } else {
+            return null;
+        }
+
+        if (nextLesson.rozvrhHodina == null) {
+            return new BreakOrLesson(currentLesson.rozvrhHodina);
+        }
+
+        return new BreakOrLesson(currentLesson.rozvrhHodina, nextLesson.rozvrhHodina);
+    }
+
 
     public List<RozvrhHodinaCaption> getHodiny() {
         return hodiny;

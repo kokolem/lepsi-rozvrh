@@ -117,5 +117,17 @@
         <item quantity="other">%d weeks forward</item>
     </plurals>
 
-
+    <!-- Progress bar permanent notification -->
+    <string name="permanent_notification">Permanent notification</string>
+    <string name="permanent_notification_channel_name">Permanent Notification</string>
+    <string name="permanent_notification_channel_description">The channel for permanent notification with the current and the next lesson.</string>
+    <string name="permanent_notification_loading_schedule">Right now: loading schedule</string>
+    <string name="permanent_notification_break">break</string>
+    <string name="permanent_notification_loading_schedule_secondary">It may take a while…</string>
+    <string name="notification_no_lesson">no lesson</string>
+    <string name="permanent_notification_desc">Notification showing current and the next lesson</string>
+    <string name="notification_lesson_in_class">%1$s in %2$s</string>
+    <string name="notification_lesson_or_break_now_happening">Right now: %1$s</string>
+    <string name="notification_next_lesson">Next: %1$s</string>
+    <string name="unknown_lesson">unknown lesson</string>
 </resources>

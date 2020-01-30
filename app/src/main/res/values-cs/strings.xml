@@ -118,4 +118,18 @@
         <item quantity="few">%d týdny vpřed</item>
         <item quantity="other">%d týdnů vpřed</item>
     </plurals>
+
+    <!-- Progress bar permanent notification -->
+    <string name="permanent_notification_channel_description">Kanál pro trvalé upozornění s právě probíhající a následující hodinou.</string>
+    <string name="permanent_notification_channel_name">Trvalé upozornění</string>
+    <string name="permanent_notification_loading_schedule">Právě probíhá: načítání rozvrhu</string>
+    <string name="permanent_notification_break">přestávka</string>
+    <string name="notification_lesson_in_class">%1$s v %2$s</string>
+    <string name="notification_lesson_or_break_now_happening">Právě probíhá: %1$s</string>
+    <string name="permanent_notification_loading_schedule_secondary">Může to chvíli trvat…</string>
+    <string name="notification_next_lesson">Následuje: %1$s</string>
+    <string name="notification_no_lesson">volná hodina</string>
+    <string name="permanent_notification">Trvalé upozornění</string>
+    <string name="permanent_notification_desc">Upozornění bude ukazovat právě probíhající a následující hodinu</string>
+    <string name="unknown_lesson">neznámá hodina</string>
 </resources>
